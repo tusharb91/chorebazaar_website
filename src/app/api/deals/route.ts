@@ -1,6 +1,16 @@
 import { NextResponse } from 'next/server';
 import path from 'path';
 import fs from 'fs';
+type Deal = {
+  id: string;
+  title: string;
+  price: string;
+  discount: string;
+  image: string;
+  link: string;
+  category: string;
+  subcategory: string;
+};
 
 export async function GET() {
   try {
@@ -13,7 +23,7 @@ export async function GET() {
     }
 
     const readCSV = () =>
-      new Promise((resolve, reject) => {
+      new Promise<Deal[]>((resolve, reject) => {
         fs.readFile(filePath, 'utf8', (err, data) => {
           if (err) {
             reject(err);
@@ -21,9 +31,8 @@ export async function GET() {
           }
 
           const lines = data.trim().split('\n');
-          const headers = lines[0].split(',').map((header) => header.trim());
-
-          const deals = lines.slice(1).map((line, index) => {
+          // Remove unused headers assignment
+          const deals: Deal[] = lines.slice(1).map((line, index) => {
             const values = line.split(',').map((value) => value.trim());
             return {
               id: values[0] || `deal-${index + 1}`,
@@ -41,7 +50,7 @@ export async function GET() {
         });
       });
 
-    const deals: any[] = await readCSV() as any[];
+    const deals: Deal[] = await readCSV();
 
     return NextResponse.json({ deals: deals });
   } catch (error) {
