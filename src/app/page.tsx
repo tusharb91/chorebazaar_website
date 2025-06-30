@@ -349,12 +349,12 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-black flex flex-col text-white">
+    <div className="min-h-screen bg-black flex flex-col text-white px-2 md:px-0">
       {/* Header Section */}
-      <header className="flex items-center bg-black h-28 px-4 py-0 shadow w-full justify-between">
+      <header className="flex flex-col md:flex-row items-center bg-black h-auto md:h-28 px-4 py-4 shadow w-full justify-between space-y-4 md:space-y-0">
         {/* Clickable logo and title */}
         <div className="flex items-center cursor-pointer" onClick={() => setNavigationStack([])}>
-          <Image src="/chorebazaar-logo.png" alt="ChoreBazaar Logo" width={112} height={112} className="h-full w-auto object-contain" />
+          <Image src="/chorebazaar-logo.png" alt="ChoreBazaar Logo" width={80} height={80} className="h-20 w-20 object-contain" />
           <div className="ml-4">
             <h1 className="text-4xl font-bold text-white">ChoreBazaar</h1>
             <p className="text-lg text-gray-300">Handpicked Deals. Less Noise. More Value.</p>
@@ -362,15 +362,14 @@ export default function HomePage() {
         </div>
 
         {/* Navigation Tabs */}
-        <nav className="flex space-x-8">
+        <nav className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-8 items-center">
           <Link href="/" className="text-white hover:text-gray-400">Home</Link>
           <Link href="/about" className="text-white hover:text-gray-400">About Us</Link>
           <Link href="/terms-and-conditions" className="text-white hover:text-gray-400">Terms & Conditions</Link>
           <Link href="/contact" className="text-white hover:text-gray-400">Contact Us</Link>
         </nav>
-        {/* Buttons below nav */}
       </header>
-      <div className="flex justify-center space-x-8 mt-8">
+      <div className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-8 mt-8">
         <button className="text-white hover:text-gray-400 bg-transparent border border-white px-8 py-4 rounded-full hover:bg-gray-700 transition text-lg">
           Top Deals
         </button>
@@ -381,7 +380,7 @@ export default function HomePage() {
 
       <div className="flex flex-1">
         {/* Sidebar with Categories and Subcategories */}
-        <div className="w-64 p-4 bg-black shadow mt-8">
+        <div className="w-full md:w-64 p-4 bg-black shadow mt-8">
           <input
             type="text"
             placeholder="Search anything"
@@ -443,7 +442,7 @@ export default function HomePage() {
         </div>
 
         {/* Deals Section */}
-        <div className="flex-1 p-8 flex flex-wrap justify-center gap-10">
+        <div className="flex-1 p-4 md:p-8 flex flex-wrap justify-center gap-10 mt-8">
           {filteredDeals.length > 0 ? (
             filteredDeals.slice(0, itemsToShow).map((deal) => {
               // Ensure price is a valid number
