@@ -1,20 +1,15 @@
+// src/components/Header.tsx
 import Link from 'next/link';
+
 export default function Header() {
   return (
-    <header className="bg-black p-4 flex justify-center items-center">
-      <nav className="flex space-x-8">
-        <Link href="/" className="text-white hover:text-gray-400">
-          Home
-        </Link>
-        <Link href="/about" className="text-white hover:text-gray-400">
-          About Us
-        </Link>
-        <Link href="/terms-and-conditions" className="text-white hover:text-gray-400">
-          Terms & Conditions
-        </Link>
-        <Link href="/contact" className="text-white hover:text-gray-400">
-          Contact Us
-        </Link>
+    <header className="bg-gray-800 text-white p-4 flex justify-between items-center">
+      <Link href="/">
+        <h1 className="text-2xl font-bold cursor-pointer">ChoreBazaar</h1>
+      </Link>
+      <nav className="space-x-6">
+        <Link href="/best-deals" className="hover:underline">Best Deals</Link>
+        <Link href="/bestsellers" className="hover:underline">Bestsellers</Link>
       </nav>
     </header>
   );

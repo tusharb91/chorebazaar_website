@@ -368,7 +368,16 @@ export default function HomePage() {
           <Link href="/terms-and-conditions" className="text-white hover:text-gray-400">Terms & Conditions</Link>
           <Link href="/contact" className="text-white hover:text-gray-400">Contact Us</Link>
         </nav>
+        {/* Buttons below nav */}
       </header>
+      <div className="flex justify-center space-x-8 mt-8">
+        <button className="text-white hover:text-gray-400 bg-transparent border border-white px-8 py-4 rounded-full hover:bg-gray-700 transition text-lg">
+          Top Deals
+        </button>
+        <button className="text-white hover:text-gray-400 bg-transparent border border-white px-8 py-4 rounded-full hover:bg-gray-700 transition text-lg">
+          Bestsellers
+        </button>
+      </div>
 
       <div className="flex flex-1">
         {/* Sidebar with Categories and Subcategories */}
