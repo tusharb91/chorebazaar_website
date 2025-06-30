@@ -260,7 +260,7 @@ export default function HomePage() {
       result.sortBy = 'priceDesc';
     }
 
-    let cleanedQuery = lowerQuery
+    const cleanedQuery = lowerQuery
       .replace(/max discount/g, '')
       .replace(/sort by price low to high/g, '')
       .replace(/sort by price high to low/g, '')
