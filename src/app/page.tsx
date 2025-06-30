@@ -463,6 +463,10 @@ export default function HomePage() {
           ) : null}
         </div>
       </div>
+      {/* Footer Section */}
+      <footer className="bg-black text-white text-center py-4 text-sm border-t border-gray-700 mt-4">
+        Amazon and the Amazon logo are trademarks of Amazon.com, Inc. or its affiliates.
+      </footer>
     </div>
   );
 }
