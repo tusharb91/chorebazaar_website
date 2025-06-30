@@ -26,8 +26,11 @@ export default function HomePage() {
     const fetchDealsFromAPI = async () => {
       try {
         const response = await fetch('/api/deals');
+        if (!response.ok) throw new Error('Failed to fetch deals');
         const data = await response.json();
+        if (!data || !Array.isArray(data.deals)) throw new Error('Invalid deals data');
         setDeals(data.deals);
+        console.log('Fetched deals:', data.deals);
       } catch (error) {
         console.error('Error fetching deals:', error);
       }
@@ -434,17 +437,34 @@ export default function HomePage() {
         <div className="flex-1 p-8 flex flex-wrap justify-center gap-10">
           {filteredDeals.length > 0 ? (
             filteredDeals.slice(0, itemsToShow).map((deal) => {
-              const currentPrice = parseFloat(deal.price.replace(/[^\d.]/g, '')) || 0;
-              const discountPercent = parseFloat(deal.discount.replace(/[^\d.]/g, '')) || 0;
-              const originalPrice = discountPercent ? currentPrice / (1 - discountPercent / 100) : currentPrice;
+              // Ensure price is a valid number
+              const priceValue = deal.price && !isNaN(Number(deal.price.toString().replace(/[^\d.]/g, '')))
+                ? deal.price.toString().replace(/[^\d.]/g, '')
+                : '0';
+              const currentPrice = parseFloat(priceValue) || 0;
+
+              // Ensure discount is a valid number
+              const discountString = deal.discount && !isNaN(Number(deal.discount.toString().replace(/[^\d.]/g, '')))
+                ? deal.discount.toString().replace(/[^\d.]/g, '')
+                : '0';
+              const discountPercent = parseFloat(discountString) || 0;
+
+              // Calculate original price safely
+              const originalPrice = discountPercent > 0 && currentPrice > 0 ? (currentPrice / (1 - discountPercent / 100)) : 0;
 
               return (
                 <div
-                  key={deal.id}
+                  key={deal.id ? deal.id.toString() : `${deal.title || 'Untitled'}-${deal.link || Math.random()}`}
                   className="border border-gray-700 rounded-2xl p-5 text-center bg-black shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-200 flex flex-col mx-auto"
                   style={{ minHeight: 420, width: 300 }}
                 >
-                  <Image src={deal.image} alt={deal.title} width={160} height={100} className="rounded object-cover mx-auto mb-2" />
+                  <Image
+                    src={deal.image && deal.image.trim() !== '' ? deal.image : '/placeholder.png'}
+                    alt={deal.title ? deal.title : 'No Title Available'}
+                    width={160}
+                    height={100}
+                    className="rounded object-cover mx-auto mb-2"
+                  />
                   <h2 className="text-lg font-semibold w-full break-words min-h-[48px] flex items-center justify-center text-center px-2">
                     {deal.title}
                   </h2>
@@ -467,7 +487,9 @@ export default function HomePage() {
                 </div>
               );
             })
-          ) : null}
+          ) : (
+            <p className="text-white text-center w-full mt-20">No deals available at the moment.</p>
+          )}
         </div>
       </div>
       {/* Footer Section */}

@@ -1,61 +1,51 @@
 import { NextResponse } from 'next/server';
-import Papa from 'papaparse';
-
-interface Deal {
-  Title?: string;
-  Price?: string;
-  Discount?: string;
-  Image?: string;
-  Link?: string;
-  Platform?: string;
-  Category?: string;
-  Subcategory?: string;
-  Description?: string;
-}
-
-async function fetchDealsFromGoogleSheet() {
-  const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSoBg7znhoq1MoPT3wOQRjWx0uHHONm4c1UrSj0vplgWbsQWcZMZd0FC8KpyWoSd2kXlWjHvqey5Cdf/pub?output=csv';
-
-  try {
-    const response = await fetch(sheetUrl);
-    if (!response.ok) {
-      console.error('Failed to fetch Google Sheet:', response.statusText);
-      return [];
-    }
-
-    const csvText = await response.text();
-    console.log('Fetched CSV Text:', csvText);
-
-    const parsedData = Papa.parse(csvText, { header: true });
-    console.log('Parsed Data:', parsedData.data);
-
-    if (parsedData.errors.length) {
-      console.error('CSV Parsing Errors:', parsedData.errors);
-      return [];
-    }
-
-    const deals = parsedData.data.map((deal: Deal, index: number) => ({
-      id: `deal-${index + 1}`,
-      title: deal.Title?.trim() || 'No Title',
-      price: deal.Price?.trim() || 'No Price',
-      discount: deal.Discount?.trim() || 'No Discount',
-      image: deal.Image?.trim() || '',
-      link: deal.Link?.trim() || '#',
-      platform: deal.Platform?.trim() || 'Unknown',
-      category: deal.Category?.trim() || 'General',
-      subcategory: deal.Subcategory?.trim() || 'General',
-      description: deal.Description?.trim() || 'No Description Available'
-    }));
-    console.log('Deals Array:', deals);
-
-    return deals;
-  } catch (error) {
-    console.error('Error fetching Google Sheet:', error);
-    return [];
-  }
-}
+import path from 'path';
+import fs from 'fs';
 
 export async function GET() {
-  const deals = await fetchDealsFromGoogleSheet();
-  return NextResponse.json({ deals });
+  try {
+    console.log('API hit');
+
+    const filePath = path.join(process.cwd(), 'public', 'deals.csv');
+
+    if (!fs.existsSync(filePath)) {
+      return NextResponse.json({ error: 'File not found' }, { status: 404 });
+    }
+
+    const readCSV = () =>
+      new Promise((resolve, reject) => {
+        fs.readFile(filePath, 'utf8', (err, data) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+
+          const lines = data.trim().split('\n');
+          const headers = lines[0].split(',').map((header) => header.trim());
+
+          const deals = lines.slice(1).map((line, index) => {
+            const values = line.split(',').map((value) => value.trim());
+            return {
+              id: values[0] || `deal-${index + 1}`,
+              title: values[1] || '',
+              price: values[2] || '',
+              discount: values[3] || '',
+              image: values[4] || '',
+              link: values[5] || '',
+              category: values[6] || '',
+              subcategory: values[7] || '',
+            };
+          });
+
+          resolve(deals);
+        });
+      });
+
+    const deals: any[] = await readCSV() as any[];
+
+    return NextResponse.json({ deals: deals });
+  } catch (error) {
+    console.error('Error reading CSV file:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
 }

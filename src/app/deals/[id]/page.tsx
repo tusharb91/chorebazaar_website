@@ -73,12 +73,23 @@ export default function DealPage() {
         <p className="text-lg mb-2 text-gray-400">Original Price: ₹{originalPrice.toFixed(2)}</p>
         <p className="text-green-400 mb-4">Discount: {deal.discount}</p>
         <p className="mb-6 max-w-2xl text-center">{deal.description}</p>
-        <button
-          onClick={() => window.open(deal.link, '_blank')}
-          className="bg-white text-black px-6 py-3 rounded shadow hover:bg-gray-300 transition"
-        >
-          Buy on Amazon
-        </button>
+        {deal.link ? (
+          <a
+            href={deal.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-white text-black px-6 py-3 rounded shadow hover:bg-gray-300 transition"
+          >
+            Buy on Amazon
+          </a>
+        ) : (
+          <button
+            className="bg-gray-500 text-white px-6 py-3 rounded shadow cursor-not-allowed"
+            disabled
+          >
+            Link Unavailable
+          </button>
+        )}
       </div>
     </>
   );
