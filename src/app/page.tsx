@@ -347,7 +347,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-black flex flex-col text-white">
       {/* Header Section */}
-      <header className="flex items-center bg-black h-28 px-4 py-0 shadow w-full">
+      <header className="flex items-center bg-black h-28 px-4 py-0 shadow w-full justify-between">
         {/* Clickable logo and title */}
         <div className="flex items-center cursor-pointer" onClick={() => setNavigationStack([])}>
           <Image src="/chorebazaar-logo.png" alt="ChoreBazaar Logo" width={112} height={112} className="h-full w-auto object-contain" />
@@ -356,6 +356,14 @@ export default function HomePage() {
             <p className="text-lg text-gray-300">Handpicked Deals. Less Noise. More Value.</p>
           </div>
         </div>
+
+        {/* Navigation Tabs */}
+        <nav className="flex space-x-8">
+          <a href="/" className="text-white hover:text-gray-400">Home</a>
+          <a href="/about" className="text-white hover:text-gray-400">About Us</a>
+          <a href="/terms-and-conditions" className="text-white hover:text-gray-400">Terms &amp; Conditions</a>
+          <a href="/contact" className="text-white hover:text-gray-400">Contact Us</a>
+        </nav>
       </header>
 
       <div className="flex flex-1">
