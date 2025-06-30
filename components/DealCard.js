@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 export default function DealCard({ title, imageUrl, price, dealLink }) {
   return (
     <div style={{
@@ -13,7 +15,7 @@ export default function DealCard({ title, imageUrl, price, dealLink }) {
     }}
     onClick={() => window.open(dealLink, '_blank')}
     >
-      <img src={imageUrl} alt={title} style={{ width: '100%', borderRadius: '8px' }} />
+      <Image src={imageUrl} alt={title} width={300} height={200} style={{ width: '100%', borderRadius: '8px' }} />
       <h2 style={{ fontSize: '1.2rem', margin: '12px 0' }}>{title}</h2>
       <p style={{ fontWeight: 'bold', fontSize: '1rem', color: '#ff6600' }}>{price}</p>
       <button style={{
