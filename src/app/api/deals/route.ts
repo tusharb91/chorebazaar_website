@@ -1,6 +1,18 @@
 import { NextResponse } from 'next/server';
 import Papa from 'papaparse';
 
+interface Deal {
+  Title?: string;
+  Price?: string;
+  Discount?: string;
+  Image?: string;
+  Link?: string;
+  Platform?: string;
+  Category?: string;
+  Subcategory?: string;
+  Description?: string;
+}
+
 async function fetchDealsFromGoogleSheet() {
   const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSoBg7znhoq1MoPT3wOQRjWx0uHHONm4c1UrSj0vplgWbsQWcZMZd0FC8KpyWoSd2kXlWjHvqey5Cdf/pub?output=csv';
 
@@ -21,7 +33,7 @@ async function fetchDealsFromGoogleSheet() {
       return [];
     }
 
-    const deals = parsedData.data.map((deal: any, index: number) => ({
+    const deals = parsedData.data.map((deal: Deal, index: number) => ({
       id: `deal-${index + 1}`,
       title: deal.Title?.trim() || 'No Title',
       price: deal.Price?.trim() || 'No Price',
