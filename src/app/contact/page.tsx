@@ -1,5 +1,5 @@
 'use client';
-
+import Link from 'next/link';
 import Image from 'next/image';
 
 export default function ContactUs() {
@@ -15,10 +15,10 @@ export default function ContactUs() {
         </div>
 
         <nav className="flex space-x-8">
-          <a href="/" className="text-white hover:text-gray-400">Home</a>
-          <a href="/about" className="text-white hover:text-gray-400">About Us</a>
-          <a href="/terms-and-conditions" className="text-white hover:text-gray-400">Terms & Conditions</a>
-          <a href="/contact" className="text-white hover:text-gray-400">Contact Us</a>
+          <Link href="/" className="text-white hover:text-gray-400">Home</Link>
+          <Link href="/about" className="text-white hover:text-gray-400">About Us</Link>
+          <Link href="/terms-and-conditions" className="text-white hover:text-gray-400">Terms & Conditions</Link>
+          <Link href="/contact" className="text-white hover:text-gray-400">Contact Us</Link>
         </nav>
       </header>
 
