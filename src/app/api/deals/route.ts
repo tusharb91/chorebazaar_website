@@ -27,6 +27,7 @@ async function fetchDealsFromGoogleSheet() {
     console.log('Fetched CSV Text:', csvText);
 
     const parsedData = Papa.parse(csvText, { header: true });
+    console.log('Parsed Data:', parsedData.data);
 
     if (parsedData.errors.length) {
       console.error('CSV Parsing Errors:', parsedData.errors);
@@ -45,6 +46,7 @@ async function fetchDealsFromGoogleSheet() {
       subcategory: deal.Subcategory?.trim() || 'General',
       description: deal.Description?.trim() || 'No Description Available'
     }));
+    console.log('Deals Array:', deals);
 
     return deals;
   } catch (error) {

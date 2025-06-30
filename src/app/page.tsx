@@ -457,15 +457,13 @@ export default function HomePage() {
                   <p className="text-green-400 mt-1 font-semibold">
                     {deal.discount} Off
                   </p>
-                  <a
-                    href={deal.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Link
+                    href={`/deals/${deal.id}`}
                     className="inline-block mt-auto px-5 py-2 bg-white text-black rounded-full font-semibold hover:bg-gray-200 transition transform hover:scale-105 active:translate-y-1 active:shadow-inner shadow"
                     style={{ minWidth: 120 }}
                   >
                     View Deal
-                  </a>
+                  </Link>
                 </div>
               );
             })
