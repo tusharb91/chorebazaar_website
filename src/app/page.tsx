@@ -150,7 +150,6 @@ export default function HomePage() {
     return deal;
   });
 
-  const selectedCategory = navigationStack.length > 0 ? navigationStack[navigationStack.length - 1] : null;
 
   function getCurrentSubcategories() {
     let currentLevel = categories;
