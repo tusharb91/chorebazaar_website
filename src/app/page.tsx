@@ -169,7 +169,6 @@ export default function HomePage() {
     return currentLevel;
   }
 
-  const subcategories = getCurrentSubcategories();
 
   const handleCategoryClick = (categoryName: string) => {
     if (navigationStack[navigationStack.length - 1] === categoryName) return;
