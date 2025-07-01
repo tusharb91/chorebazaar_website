@@ -22,12 +22,12 @@ export default function DealPage() {
   const id = params?.id as string;
   const [deal, setDeal] = useState<Deal | null>(null);
   const [relatedDeals, setRelatedDeals] = useState<Deal[]>([]);
-  const [scrollPosition, setScrollPosition] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
+  // const [scrollPosition, setScrollPosition] = useState(0);
+  // const [isHovered, setIsHovered] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState<number>(-1);
-  const [activeSearchQuery, setActiveSearchQuery] = useState('');
+  // const [activeSearchQuery, setActiveSearchQuery] = useState('');
   const [suggestions, setSuggestions] = useState<Deal[]>([]);
 
   useEffect(() => {
@@ -48,11 +48,11 @@ export default function DealPage() {
             })
             .slice(0, 50);
 
-          if (activeSearchQuery) {
-            related = related.filter((deal) =>
-              deal.title.toLowerCase().includes(activeSearchQuery.toLowerCase())
-            );
-          }
+          // if (activeSearchQuery) {
+          //   related = related.filter((deal) =>
+          //     deal.title.toLowerCase().includes(activeSearchQuery.toLowerCase())
+          //   );
+          // }
 
           setRelatedDeals(related);
         }
@@ -62,7 +62,7 @@ export default function DealPage() {
     }
 
     fetchDeal();
-  }, [id, activeSearchQuery]);
+  }, [id]);
 
   function handleScroll(e: React.UIEvent<HTMLDivElement, UIEvent>) {
     e.preventDefault();
@@ -214,8 +214,6 @@ export default function DealPage() {
             ref={scrollContainerRef}
             className="flex overflow-x-auto space-x-4 p-4 bg-gray-800 rounded relative"
             onWheel={handleScroll}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
           >
             {relatedDeals.length > 0 ? (
               [...relatedDeals, ...relatedDeals, ...relatedDeals].map((item, index) => {
