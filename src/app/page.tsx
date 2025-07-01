@@ -22,7 +22,6 @@ export default function HomePage() {
   const [activeSearchQuery, setActiveSearchQuery] = useState<string>('');
   const [itemsToShow, setItemsToShow] = useState<number>(20);
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
-  const [isSubcategoryView, setIsSubcategoryView] = useState<boolean>(false);
   // Suggestions state for search autocomplete
   const [suggestions, setSuggestions] = useState<Deal[]>([]);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState<number>(-1);
@@ -175,22 +174,12 @@ export default function HomePage() {
   const handleCategoryClick = (categoryName: string) => {
     if (navigationStack[navigationStack.length - 1] === categoryName) return;
     setNavigationStack((prevStack) => [...prevStack, categoryName]);
-    setIsSubcategoryView(true);
   };
 
   const handleSubcategoryClick = (subcategoryName: string) => {
     if (navigationStack[navigationStack.length - 1] === subcategoryName) return;
     setNavigationStack((prevStack) => [...prevStack, subcategoryName]);
-    setIsSubcategoryView(false);
     setIsSidebarOpen(false);
-  };
-
-  const handleGoBack = () => {
-    setNavigationStack((prevStack) => {
-      const newStack = prevStack.slice(0, -1);
-      if (newStack.length <= 1) setIsSidebarOpen(false);
-      return newStack;
-    });
   };
 
   let filteredDeals = normalizedDeals;
@@ -329,10 +318,13 @@ export default function HomePage() {
   }
 
   return (
-      <div
-        className="min-h-screen bg-black flex flex-col text-white px-2 md:px-0"
-        onClick={() => setIsSidebarOpen(false)}
-      >
+    <div
+      className="min-h-screen bg-black flex flex-col text-white px-2 md:px-0"
+      onClick={() => {
+        setIsSidebarOpen(false);
+        setSuggestions([]);
+      }}
+    >
       {/* Header Section */}
       <header className="flex flex-col md:flex-row items-center bg-black h-auto md:h-28 px-4 py-4 shadow w-full justify-between space-y-4 md:space-y-0">
         {/* Clickable logo and title */}
@@ -345,8 +337,7 @@ export default function HomePage() {
         </div>
 
         {/* Navigation Tabs */}
-        <nav className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-8 items-center">
-          <Link href="/" className="text-white hover:text-gray-400">Home</Link>
+        <nav className="flex flex-row space-x-4 md:space-x-8 items-center text-sm md:text-base overflow-x-auto">
           <Link href="/about" className="text-white hover:text-gray-400">About Us</Link>
           <Link href="/terms-and-conditions" className="text-white hover:text-gray-400">Terms & Conditions</Link>
           <Link href="/contact" className="text-white hover:text-gray-400">Contact Us</Link>
@@ -354,139 +345,131 @@ export default function HomePage() {
       </header>
 
       {/* Search and hamburger bar always at the top */}
-      <div className="flex items-center justify-between mt-4 ml-4 mr-4 relative">
-        <button
-          className="text-white text-2xl mr-4"
-          onClick={(e) => {
-            e.stopPropagation();
-            setTimeout(() => setIsSidebarOpen(!isSidebarOpen), 50);
-          }}
+      <div
+        className="flex border border-white w-full mt-4 ml-4 mr-4 px-4 shadow-lg"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <Link
+          href="/"
+          className="flex-1 flex items-center justify-center text-white hover:text-gray-400 text-sm md:text-base py-2 hover:bg-gray-700 active:bg-gray-800 cursor-pointer transition-all duration-200"
         >
-          ☰
-        </button>
-        <input
-          type="text"
-          placeholder="Search anything"
-          value={searchQuery}
-          onFocus={(e) => e.target.placeholder = ''}
-          onBlur={(e) => e.target.placeholder = 'Search anything'}
-          onChange={(e) => {
-            const query = e.target.value;
-            setSearchQuery(query);
-            setSelectedSuggestionIndex(-1);
-            if (query.trim() === '') {
-              setSuggestions([]);
-            } else {
-              const matches = deals.filter(deal =>
-                deal.title.toLowerCase().includes(query.toLowerCase())
-              ).slice(0, 4);
-              setSuggestions(matches);
-            }
-          }}
-          onKeyDown={(e) => {
-            if (e.key === 'ArrowDown') {
-              e.preventDefault();
-              setSelectedSuggestionIndex((prevIndex) =>
-                prevIndex < suggestions.length - 1 ? prevIndex + 1 : 0
-              );
-            } else if (e.key === 'ArrowUp') {
-              e.preventDefault();
-              setSelectedSuggestionIndex((prevIndex) =>
-                prevIndex > 0 ? prevIndex - 1 : suggestions.length - 1
-              );
-            } else if (e.key === 'Enter') {
-              e.preventDefault();
-              if (selectedSuggestionIndex >= 0 && selectedSuggestionIndex < suggestions.length) {
-                window.location.href = `/deals/${suggestions[selectedSuggestionIndex].id}`;
-              } else {
-                setActiveSearchQuery(searchQuery);
-              }
-              setSuggestions([]);
-            }
-          }}
-          className="px-4 py-2 rounded-full bg-transparent text-white w-80 border border-white"
-        />
-        {suggestions && suggestions.length > 0 && (
-          <div className="absolute mt-12 bg-black border border-gray-700 rounded w-80 z-50">
-            {suggestions.map((suggestion, index) => (
-              <div
-                key={suggestion.id}
-                className={`p-2 cursor-pointer flex items-center ${index === selectedSuggestionIndex ? 'bg-gray-700' : 'hover:bg-gray-800'}`}
-                onMouseEnter={() => setSelectedSuggestionIndex(index)}
-                onClick={() => window.location.href = `/deals/${suggestion.id}`}
+          Home
+        </Link>
+    <div className="relative flex-1">
+      <button
+        className="flex items-center justify-center text-white text-sm md:text-base py-2 hover:bg-gray-700 active:bg-gray-800 cursor-pointer transition-all duration-200 w-full"
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsSidebarOpen(!isSidebarOpen);
+        }}
+      >
+        ☰
+      </button>
+      {isSidebarOpen && (
+        <div
+          className="absolute top-full left-0 bg-black shadow-lg border border-white mt-2 transition-all duration-500 ease-in-out z-50 w-full"
+        >
+          {categories.map((category) => (
+            <div key={category.name} className="flex flex-col">
+              <button
+                onClick={() => handleCategoryClick(category.name)}
+                className="flex justify-center items-center w-full px-4 py-3 text-xs font-semibold text-white hover:bg-gray-700 transition-all duration-300"
               >
-                <Image
-                  src={suggestion.image && suggestion.image.trim() !== '' ? suggestion.image : '/placeholder.png'}
-                  alt={suggestion.title}
-                  width={40}
-                  height={40}
-                  className="rounded object-cover mr-2"
-                />
-                {suggestion.title}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-      <div className="flex flex-1">
-        {/* Sidebar with Categories and Subcategories as overlay */}
-        {isSidebarOpen && (
-          <div
-            className={`fixed top-0 left-0 w-64 h-full bg-black shadow-lg overflow-y-auto z-50 p-4 transform transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-lg font-bold text-white mb-4">Categories</h2>
-            {/* Category Section */}
-            <div className={`flex flex-col gap-1 mt-6 transform transition-transform duration-300 ${isSubcategoryView ? '-translate-x-full' : 'translate-x-0'}`}>
-              {!isSubcategoryView && (
-                categories.map((category) => (
-                  <div key={category.name}>
+                {category.name}
+                <span className="text-gray-400">{'>'}</span>
+              </button>
+              {navigationStack.includes(category.name) && (
+                <div className="flex flex-col ml-4 overflow-hidden transition-all duration-500 ease-in-out">
+                  {category.subcategories.map((subcategory) => (
                     <button
-                      onClick={() => handleCategoryClick(category.name)}
-                      className="flex justify-between items-center w-full px-4 py-3 text-xs font-semibold text-white hover:bg-gray-700 transition"
+                      key={subcategory.name}
+                      onClick={() => handleSubcategoryClick(subcategory.name)}
+                      className="flex justify-center items-center w-full px-4 py-3 text-xs font-semibold text-white hover:bg-gray-700 transition-all duration-300"
                     >
-                      {category.name}
-                      <span className="text-gray-400">{'>'}</span>
+                      {subcategory.name}
                     </button>
-                  </div>
-                ))
+                  ))}
+                </div>
               )}
             </div>
-            {/* Subcategory Section */}
-            {navigationStack.length > 0 && (
-              <div className={`flex flex-col gap-1 pl-0 absolute top-0 left-0 w-full h-full bg-black transition-transform duration-300 ${isSubcategoryView ? 'translate-x-0' : 'translate-x-full'}`}>
-                <div className="mt-6">
-                  {/* Back button */}
-                  <button
-                    onClick={handleGoBack}
-                    className="text-sm text-gray-400 hover:text-white mb-4 flex items-center"
-                  >
-                    <span className="mr-2">{'<'}</span> Back to {navigationStack.length > 1 ? navigationStack[navigationStack.length - 2] : 'All Categories'}
-                  </button>
-                  {/* Current category display */}
-                  <div className="pl-4 mb-4">
-                    <h3 className="text-lg font-bold text-white">{navigationStack[navigationStack.length - 1]}</h3>
-                  </div>
-                  {/* Subcategories section */}
-                  <div className={`flex flex-col gap-1 pl-6 transform transition-transform duration-300 ${isSubcategoryView ? 'translate-x-0' : 'translate-x-full'}`}>
-                    {subcategories.map((subcategory) => (
-                      <button
-                        key={subcategory.name}
-                        onClick={() => handleSubcategoryClick(subcategory.name)}
-                        className="flex justify-between items-center w-full px-4 py-3 text-xs font-semibold text-white hover:bg-gray-700 transition"
-                      >
-                        {subcategory.name}
-                        <span className="text-gray-400">{'>'}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-        {/* Deals Section */}
-        <div className="flex-1 p-4 md:p-8 flex flex-wrap justify-start gap-10 mt-8">
+          ))}
+        </div>
+      )}
+    </div>
+        <div className="relative flex-1">
+          <input
+            type="text"
+            placeholder="Search anything"
+            value={searchQuery}
+            onFocus={(e) => {
+              e.target.placeholder = '';
+              e.target.setSelectionRange(e.target.value.length, e.target.value.length);
+            }}
+            onBlur={(e) => e.target.placeholder = 'Search anything'}
+            onChange={(e) => {
+              const query = e.target.value;
+              setSearchQuery(query);
+              setSelectedSuggestionIndex(-1);
+              if (query.trim() === '') {
+                setSuggestions([]);
+              } else {
+                const matches = deals.filter(deal =>
+                  deal.title.toLowerCase().includes(query.toLowerCase())
+                ).slice(0, 4);
+                setSuggestions(matches);
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                setSelectedSuggestionIndex((prevIndex) =>
+                  prevIndex < suggestions.length - 1 ? prevIndex + 1 : 0
+                );
+              } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                setSelectedSuggestionIndex((prevIndex) =>
+                  prevIndex > 0 ? prevIndex - 1 : suggestions.length - 1
+                );
+              } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (selectedSuggestionIndex >= 0 && selectedSuggestionIndex < suggestions.length) {
+                  window.location.href = `/deals/${suggestions[selectedSuggestionIndex].id}`;
+                } else {
+                  setActiveSearchQuery(searchQuery);
+                }
+                setSuggestions([]);
+              }
+            }}
+            className="w-full h-full px-4 py-2 bg-transparent text-white text-center hover:bg-gray-700 active:bg-gray-800 cursor-text transition-all duration-200"
+          />
+          {suggestions.length > 0 && (
+            <ul className="absolute top-full left-0 mt-2 w-full max-h-40 overflow-y-auto text-xs md:text-sm space-y-1 bg-black border border-gray-700 rounded z-50">
+              {suggestions.map((suggestion, index) => (
+                <li
+                  key={suggestion.id}
+                  className={`flex items-center cursor-pointer p-1 ${index === selectedSuggestionIndex ? 'bg-gray-600' : ''}`}
+                  onMouseEnter={() => setSelectedSuggestionIndex(index)}
+                  onClick={() => window.location.href = `/deals/${suggestion.id}`}
+                >
+                  <Image
+                    src={suggestion.image}
+                    alt={suggestion.title}
+                    width={30}
+                    height={30}
+                    className="rounded mr-2"
+                  />
+                  <span className="text-white truncate block w-full">
+                    {suggestion.title}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+      {/* Inline dropdown for Categories and Subcategories */}
+      {/* Deals Section */}
+      <div className="flex-1 p-4 md:p-8 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-10 mt-8">
           {filteredDeals.length > 0 ? (
             filteredDeals.slice(0, itemsToShow).map((deal) => {
               // Ensure price is a valid number
@@ -508,8 +491,7 @@ export default function HomePage() {
                 <Link
                   key={deal.id ? deal.id.toString() : `${deal.title || 'Untitled'}-${deal.link || Math.random()}`}
                   href={`/deals/${deal.id}`}
-                  className="border border-gray-700 rounded-2xl p-3 text-center bg-black shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-200 flex flex-col cursor-pointer"
-                  style={{ minHeight: 320, width: 200 }}
+                  className="border border-gray-700 rounded-2xl p-3 text-center bg-black shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-200 flex flex-col cursor-pointer min-h-[320px]"
                 >
                   <Image
                     src={deal.image && deal.image.trim() !== '' ? deal.image : '/placeholder.png'}
@@ -536,7 +518,6 @@ export default function HomePage() {
           ) : (
             <p className="text-white text-center w-full mt-20">No deals available at the moment.</p>
           )}
-        </div>
       </div>
       {/* Footer Section */}
       <footer className="bg-black text-white text-center py-4 text-sm border-t border-gray-700 mt-4">
