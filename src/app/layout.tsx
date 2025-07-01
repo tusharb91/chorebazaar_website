@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Link from 'next/link';
+import Image from 'next/image';
 import "./globals.css";
 
 const geistSans = Geist({
@@ -28,10 +30,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <header style={{ padding: '1rem', borderBottom: '1px solid #ddd' }}>
-          <a href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-            <img src="/logo.png" alt="ChoreBazaar Logo" style={{ height: '40px', marginRight: '10px' }} />
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+            <Image src="/logo.png" alt="ChoreBazaar Logo" width={40} height={40} style={{ marginRight: '10px' }} />
             <h1 style={{ fontSize: '1.5rem', margin: 0, color: 'black' }}>ChoreBazaar</h1>
-          </a>
+          </Link>
         </header>
         {children}
       </body>
