@@ -21,6 +21,8 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeSearchQuery, setActiveSearchQuery] = useState<string>('');
   const [itemsToShow, setItemsToShow] = useState<number>(20);
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+  const [isSubcategoryView, setIsSubcategoryView] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchDealsFromAPI = async () => {
@@ -171,6 +173,7 @@ export default function HomePage() {
   const handleCategoryClick = (categoryName: string) => {
     if (navigationStack[navigationStack.length - 1] === categoryName) return;
     setNavigationStack((prevStack) => [...prevStack, categoryName]);
+    setIsSubcategoryView(true);
   };
 
   const handleSubcategoryClick = (subcategoryName: string) => {
@@ -180,6 +183,7 @@ export default function HomePage() {
 
   const handleGoBack = () => {
     setNavigationStack((prevStack) => prevStack.slice(0, -1));
+    if (navigationStack.length <= 2) setIsSubcategoryView(false);
   };
 
   let filteredDeals = normalizedDeals;
@@ -318,7 +322,10 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-black flex flex-col text-white px-2 md:px-0">
+    <div
+      className="min-h-screen bg-black flex flex-col text-white px-2 md:px-0"
+      onClick={() => setIsSidebarOpen(false)}
+    >
       {/* Header Section */}
       <header className="flex flex-col md:flex-row items-center bg-black h-auto md:h-28 px-4 py-4 shadow w-full justify-between space-y-4 md:space-y-0">
         {/* Clickable logo and title */}
@@ -347,82 +354,87 @@ export default function HomePage() {
         </button>
       </div>
 
+      {/* Search and hamburger bar always at the top */}
+      <div className="flex items-center justify-start mt-4 ml-4 space-x-4">
+        <button
+          className="text-white text-2xl"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsSidebarOpen(!isSidebarOpen);
+          }}
+        >
+          ☰
+        </button>
+        <input
+          type="text"
+          placeholder="Search anything"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              setActiveSearchQuery(searchQuery);
+            }
+          }}
+          className="w-72 p-2 text-white placeholder-white bg-black border border-white rounded-full"
+        />
+      </div>
       <div className="flex flex-1">
-        {/* Sidebar with Categories and Subcategories */}
-        <div className="w-full md:w-64 p-4 bg-black shadow mt-8">
-          <input
-            type="text"
-            placeholder="Search anything"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                setActiveSearchQuery(searchQuery);
-              }
-            }}
-            className="w-full p-2 mb-4 text-white placeholder-white bg-black border border-white rounded-full"
-          />
-          {searchQuery.trim() && (
-            <div className="absolute bg-black bg-opacity-80 text-white border border-gray-700 rounded-lg mt-1 w-full max-w-xs p-2 z-50">
-              {normalizedDeals
-                .filter(deal => deal.title.toLowerCase().includes(searchQuery.toLowerCase()))
-                .slice(0, 4)
-                .map((deal) => (
-                  <Link key={deal.id} href={`/deals/${deal.id}`} className="flex items-center px-2 py-1 hover:bg-gray-700 transition">
-                    <Image src={deal.image} alt={deal.title} width={30} height={30} className="rounded mr-2" />
-                    <span className="truncate max-w-[150px]">{deal.title.length > 20 ? `${deal.title.slice(0, 20)}...` : deal.title}</span>
-                  </Link>
-                ))}
+        {/* Sidebar with Categories and Subcategories as overlay */}
+        {isSidebarOpen && (
+          <div
+            className={`fixed top-0 left-0 w-64 h-full bg-black shadow-lg overflow-y-auto z-50 p-4 transform transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-lg font-bold text-white mb-4">Categories</h2>
+            {/* Category Section */}
+            <div className={`flex flex-col gap-1 mt-6 transform transition-transform duration-300 ${isSubcategoryView ? '-translate-x-full' : 'translate-x-0'}`}>
+              {!navigationStack.length > 0 && (
+                categories.map((category) => (
+                  <div key={category.name}>
+                    <button
+                      onClick={() => handleCategoryClick(category.name)}
+                      className="flex justify-between items-center w-full px-4 py-3 text-xs font-semibold text-white hover:bg-gray-700 transition"
+                    >
+                      {category.name}
+                      <span className="text-gray-400">{'>'}</span>
+                    </button>
+                  </div>
+                ))
+              )}
             </div>
-          )}
-          <h2 className="text-lg font-bold text-white mb-4">Categories</h2>
-          
-          {navigationStack.length > 0 ? (
-            <div className="flex flex-col gap-1 mt-6">
-              {/* Back button */}
-              <button
-                onClick={handleGoBack}
-                className="text-sm text-gray-400 hover:text-white mb-4 flex items-center"
-              >
-                <span className="mr-2">{'<'}</span> Back to {navigationStack.length > 1 ? navigationStack[navigationStack.length - 2] : 'All Categories'}
-               </button>
-
-              {/* Current category display */}
-              <div className="pl-4 mb-4">
-                <h3 className="text-lg font-bold text-white">{navigationStack[navigationStack.length - 1]}</h3>
-              </div>
-
-              {/* Subcategories section */}
-              <div className="flex flex-col gap-1 pl-6">
-                {subcategories.map((subcategory) => (
+            {/* Subcategory Section */}
+            {navigationStack.length > 0 && (
+              <div className={`flex flex-col gap-1 pl-0 absolute top-0 left-0 w-full h-full bg-black transition-transform duration-300 ${isSubcategoryView ? 'translate-x-0' : 'translate-x-full'}`}>
+                <div className="mt-6">
+                  {/* Back button */}
                   <button
-                    key={subcategory.name}
-                    onClick={() => handleSubcategoryClick(subcategory.name)}
-                    className="flex justify-between items-center w-full px-4 py-3 text-sm font-semibold text-white hover:bg-gray-700 transition"
+                    onClick={handleGoBack}
+                    className="text-sm text-gray-400 hover:text-white mb-4 flex items-center"
                   >
-                    {subcategory.name}
-                    <span className="text-gray-400">{'>'}</span>
+                    <span className="mr-2">{'<'}</span> Back to {navigationStack.length > 1 ? navigationStack[navigationStack.length - 2] : 'All Categories'}
                   </button>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-1 mt-6">
-              {categories.map((category) => (
-                <div key={category.name}>
-                  <button
-                    onClick={() => handleCategoryClick(category.name)}
-                    className="flex justify-between items-center w-full px-4 py-3 text-sm font-semibold text-white hover:bg-gray-700 transition"
-                  >
-                    {category.name}
-                    <span className="text-gray-400">{'>'}</span>
-                  </button>
+                  {/* Current category display */}
+                  <div className="pl-4 mb-4">
+                    <h3 className="text-lg font-bold text-white">{navigationStack[navigationStack.length - 1]}</h3>
+                  </div>
+                  {/* Subcategories section */}
+                  <div className={`flex flex-col gap-1 pl-6 transform transition-transform duration-300 ${isSubcategoryView ? 'translate-x-0' : 'translate-x-full'}`}>
+                    {subcategories.map((subcategory) => (
+                      <button
+                        key={subcategory.name}
+                        onClick={() => handleSubcategoryClick(subcategory.name)}
+                        className="flex justify-between items-center w-full px-4 py-3 text-xs font-semibold text-white hover:bg-gray-700 transition"
+                      >
+                        {subcategory.name}
+                        <span className="text-gray-400">{'>'}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-
+              </div>
+            )}
+          </div>
+        )}
         {/* Deals Section */}
         <div className="flex-1 p-4 md:p-8 flex flex-wrap justify-start gap-10 mt-8">
           {filteredDeals.length > 0 ? (
