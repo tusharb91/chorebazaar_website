@@ -393,6 +393,19 @@ export default function HomePage() {
             }}
             className="w-full p-2 mb-4 text-white placeholder-white bg-black border border-white rounded-full"
           />
+          {searchQuery.trim() && (
+            <div className="absolute bg-black bg-opacity-80 text-white border border-gray-700 rounded-lg mt-1 w-full max-w-xs p-2 z-50">
+              {normalizedDeals
+                .filter(deal => deal.title.toLowerCase().includes(searchQuery.toLowerCase()))
+                .slice(0, 4)
+                .map((deal) => (
+                  <Link key={deal.id} href={`/deals/${deal.id}`} className="flex items-center px-2 py-1 hover:bg-gray-700 transition">
+                    <Image src={deal.image} alt={deal.title} width={30} height={30} className="rounded mr-2" />
+                    <span className="truncate max-w-[150px]">{deal.title.length > 20 ? `${deal.title.slice(0, 20)}...` : deal.title}</span>
+                  </Link>
+                ))}
+            </div>
+          )}
           <h2 className="text-lg font-bold text-white mb-4">Categories</h2>
           
           {navigationStack.length > 0 ? (
@@ -442,7 +455,7 @@ export default function HomePage() {
         </div>
 
         {/* Deals Section */}
-        <div className="flex-1 p-4 md:p-8 flex flex-wrap justify-center gap-10 mt-8">
+        <div className="flex-1 p-4 md:p-8 flex flex-wrap justify-start gap-10 mt-8">
           {filteredDeals.length > 0 ? (
             filteredDeals.slice(0, itemsToShow).map((deal) => {
               // Ensure price is a valid number
@@ -460,21 +473,22 @@ export default function HomePage() {
               // Calculate original price safely
               const originalPrice = discountPercent > 0 && currentPrice > 0 ? (currentPrice / (1 - discountPercent / 100)) : 0;
 
-              return (
-                <div
+            return (
+                <Link
                   key={deal.id ? deal.id.toString() : `${deal.title || 'Untitled'}-${deal.link || Math.random()}`}
-                  className="border border-gray-700 rounded-2xl p-5 text-center bg-black shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-200 flex flex-col mx-auto"
-                  style={{ minHeight: 420, width: 300 }}
+                  href={`/deals/${deal.id}`}
+                  className="border border-gray-700 rounded-2xl p-3 text-center bg-black shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-200 flex flex-col cursor-pointer"
+                  style={{ minHeight: 320, width: 200 }}
                 >
                   <Image
                     src={deal.image && deal.image.trim() !== '' ? deal.image : '/placeholder.png'}
                     alt={deal.title ? deal.title : 'No Title Available'}
-                    width={160}
-                    height={100}
+                    width={120}
+                    height={80}
                     className="rounded object-cover mx-auto mb-2"
                   />
                   <h2 className="text-lg font-semibold w-full break-words min-h-[48px] flex items-center justify-center text-center px-2">
-                    {deal.title}
+                    {deal.title.length > 20 ? `${deal.title.slice(0, 20)}...` : deal.title}
                   </h2>
                   <p className="text-gray-400 mt-2">
                     Original: ₹{originalPrice.toLocaleString('en-IN', { minimumFractionDigits: 0 })}
@@ -485,14 +499,7 @@ export default function HomePage() {
                   <p className="text-green-400 mt-1 font-semibold">
                     {deal.discount} Off
                   </p>
-                  <Link
-                    href={`/deals/${deal.id}`}
-                    className="inline-block mt-auto px-5 py-2 bg-white text-black rounded-full font-semibold hover:bg-gray-200 transition transform hover:scale-105 active:translate-y-1 active:shadow-inner shadow"
-                    style={{ minWidth: 120 }}
-                  >
-                    View Deal
-                  </Link>
-                </div>
+                </Link>
               );
             })
           ) : (
