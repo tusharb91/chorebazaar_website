@@ -23,6 +23,9 @@ export default function HomePage() {
   const [itemsToShow, setItemsToShow] = useState<number>(20);
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const [isSubcategoryView, setIsSubcategoryView] = useState<boolean>(false);
+  // Suggestions state for search autocomplete
+  const [suggestions, setSuggestions] = useState<Deal[]>([]);
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState<number>(-1);
 
   useEffect(() => {
     const fetchDealsFromAPI = async () => {
@@ -178,11 +181,16 @@ export default function HomePage() {
   const handleSubcategoryClick = (subcategoryName: string) => {
     if (navigationStack[navigationStack.length - 1] === subcategoryName) return;
     setNavigationStack((prevStack) => [...prevStack, subcategoryName]);
+    setIsSubcategoryView(false);
+    setIsSidebarOpen(false);
   };
 
   const handleGoBack = () => {
-    setNavigationStack((prevStack) => prevStack.slice(0, -1));
-    if (navigationStack.length <= 2) setIsSubcategoryView(false);
+    setNavigationStack((prevStack) => {
+      const newStack = prevStack.slice(0, -1);
+      if (newStack.length <= 1) setIsSidebarOpen(false);
+      return newStack;
+    });
   };
 
   let filteredDeals = normalizedDeals;
@@ -321,10 +329,10 @@ export default function HomePage() {
   }
 
   return (
-    <div
-      className="min-h-screen bg-black flex flex-col text-white px-2 md:px-0"
-      onClick={() => setIsSidebarOpen(false)}
-    >
+      <div
+        className="min-h-screen bg-black flex flex-col text-white px-2 md:px-0"
+        onClick={() => setIsSidebarOpen(false)}
+      >
       {/* Header Section */}
       <header className="flex flex-col md:flex-row items-center bg-black h-auto md:h-28 px-4 py-4 shadow w-full justify-between space-y-4 md:space-y-0">
         {/* Clickable logo and title */}
@@ -344,22 +352,14 @@ export default function HomePage() {
           <Link href="/contact" className="text-white hover:text-gray-400">Contact Us</Link>
         </nav>
       </header>
-      <div className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-8 mt-8">
-        <button className="text-white hover:text-gray-400 bg-transparent border border-white px-8 py-4 rounded-full hover:bg-gray-700 transition text-lg">
-          Top Deals
-        </button>
-        <button className="text-white hover:text-gray-400 bg-transparent border border-white px-8 py-4 rounded-full hover:bg-gray-700 transition text-lg">
-          Bestsellers
-        </button>
-      </div>
 
       {/* Search and hamburger bar always at the top */}
-      <div className="flex items-center justify-start mt-4 ml-4 space-x-4">
+      <div className="flex items-center justify-between mt-4 ml-4 mr-4 relative">
         <button
-          className="text-white text-2xl"
+          className="text-white text-2xl mr-4"
           onClick={(e) => {
             e.stopPropagation();
-            setIsSidebarOpen(!isSidebarOpen);
+            setTimeout(() => setIsSidebarOpen(!isSidebarOpen), 50);
           }}
         >
           ☰
@@ -368,14 +368,65 @@ export default function HomePage() {
           type="text"
           placeholder="Search anything"
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              setActiveSearchQuery(searchQuery);
+          onFocus={(e) => e.target.placeholder = ''}
+          onBlur={(e) => e.target.placeholder = 'Search anything'}
+          onChange={(e) => {
+            const query = e.target.value;
+            setSearchQuery(query);
+            setSelectedSuggestionIndex(-1);
+            if (query.trim() === '') {
+              setSuggestions([]);
+            } else {
+              const matches = deals.filter(deal =>
+                deal.title.toLowerCase().includes(query.toLowerCase())
+              ).slice(0, 4);
+              setSuggestions(matches);
             }
           }}
-          className="w-72 p-2 text-white placeholder-white bg-black border border-white rounded-full"
+          onKeyDown={(e) => {
+            if (e.key === 'ArrowDown') {
+              e.preventDefault();
+              setSelectedSuggestionIndex((prevIndex) =>
+                prevIndex < suggestions.length - 1 ? prevIndex + 1 : 0
+              );
+            } else if (e.key === 'ArrowUp') {
+              e.preventDefault();
+              setSelectedSuggestionIndex((prevIndex) =>
+                prevIndex > 0 ? prevIndex - 1 : suggestions.length - 1
+              );
+            } else if (e.key === 'Enter') {
+              e.preventDefault();
+              if (selectedSuggestionIndex >= 0 && selectedSuggestionIndex < suggestions.length) {
+                window.location.href = `/deals/${suggestions[selectedSuggestionIndex].id}`;
+              } else {
+                setActiveSearchQuery(searchQuery);
+              }
+              setSuggestions([]);
+            }
+          }}
+          className="px-4 py-2 rounded-full bg-transparent text-white w-80 border border-white"
         />
+        {suggestions && suggestions.length > 0 && (
+          <div className="absolute mt-12 bg-black border border-gray-700 rounded w-80 z-50">
+            {suggestions.map((suggestion, index) => (
+              <div
+                key={suggestion.id}
+                className={`p-2 cursor-pointer flex items-center ${index === selectedSuggestionIndex ? 'bg-gray-700' : 'hover:bg-gray-800'}`}
+                onMouseEnter={() => setSelectedSuggestionIndex(index)}
+                onClick={() => window.location.href = `/deals/${suggestion.id}`}
+              >
+                <Image
+                  src={suggestion.image && suggestion.image.trim() !== '' ? suggestion.image : '/placeholder.png'}
+                  alt={suggestion.title}
+                  width={40}
+                  height={40}
+                  className="rounded object-cover mr-2"
+                />
+                {suggestion.title}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
       <div className="flex flex-1">
         {/* Sidebar with Categories and Subcategories as overlay */}
@@ -387,7 +438,7 @@ export default function HomePage() {
             <h2 className="text-lg font-bold text-white mb-4">Categories</h2>
             {/* Category Section */}
             <div className={`flex flex-col gap-1 mt-6 transform transition-transform duration-300 ${isSubcategoryView ? '-translate-x-full' : 'translate-x-0'}`}>
-              {navigationStack.length === 0 && (
+              {!isSubcategoryView && (
                 categories.map((category) => (
                   <div key={category.name}>
                     <button
@@ -453,7 +504,7 @@ export default function HomePage() {
               // Calculate original price safely
               const originalPrice = discountPercent > 0 && currentPrice > 0 ? (currentPrice / (1 - discountPercent / 100)) : 0;
 
-            return (
+              return (
                 <Link
                   key={deal.id ? deal.id.toString() : `${deal.title || 'Untitled'}-${deal.link || Math.random()}`}
                   href={`/deals/${deal.id}`}

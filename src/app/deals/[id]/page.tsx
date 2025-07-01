@@ -97,7 +97,7 @@ export default function DealPage() {
   const originalPrice = currentPrice / (1 - discountValue / 100);
 
   return (
-    <>
+    <div onClick={() => setSuggestions([])}>
       <header className="flex items-center bg-black h-28 px-4 py-0 shadow w-full justify-between">
         <div className="flex items-center cursor-pointer" onClick={() => window.location.href = '/'}>
           <Image src="/chorebazaar-logo.png" alt="ChoreBazaar Logo" width={112} height={112} className="h-full w-auto object-contain" />
@@ -114,11 +114,13 @@ export default function DealPage() {
           <Link href="/contact" className="text-white hover:text-gray-400">Contact Us</Link>
         </nav>
       </header>
-      <div className="flex justify-end mt-6 mb-6 relative pr-4">
+      <div className="flex justify-end mt-6 mb-6 relative pr-4" onClick={(e) => e.stopPropagation()}>
         <input
           type="text"
           placeholder="Search deals..."
           value={searchQuery}
+          onFocus={(e) => e.target.placeholder = ''}
+          onBlur={(e) => e.target.placeholder = 'Search deals...'}
           onChange={(e) => {
             const query = e.target.value;
             setSearchQuery(query);
@@ -152,7 +154,7 @@ export default function DealPage() {
               }
             }
           }}
-          className="px-4 py-2 rounded bg-gray-800 text-white w-80"
+          className="px-4 py-2 rounded-full bg-transparent text-white w-80 border border-white"
         />
         {suggestions.length > 0 && (
           <ul className="absolute mt-12 w-80 max-h-40 overflow-y-auto text-sm space-y-1">
@@ -230,6 +232,6 @@ export default function DealPage() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
