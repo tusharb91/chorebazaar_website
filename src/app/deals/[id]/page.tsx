@@ -39,7 +39,7 @@ export default function DealPage() {
         setDeal(foundDeal || null);
 
         if (foundDeal) {
-          let related = data.deals
+          const related = data.deals
             .filter((d: Deal) => d.id !== foundDeal.id && (d.category === foundDeal.category || d.subcategory === foundDeal.subcategory || d.title.toLowerCase().includes(foundDeal.title.split(' ')[0].toLowerCase())))
             .sort((a: Deal, b: Deal) => {
               const discountA = parseFloat(a.discount.replace(/[^\d.]/g, '')) || 0;
