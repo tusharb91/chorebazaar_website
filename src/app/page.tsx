@@ -387,7 +387,7 @@ export default function HomePage() {
             <h2 className="text-lg font-bold text-white mb-4">Categories</h2>
             {/* Category Section */}
             <div className={`flex flex-col gap-1 mt-6 transform transition-transform duration-300 ${isSubcategoryView ? '-translate-x-full' : 'translate-x-0'}`}>
-              {!navigationStack.length > 0 && (
+              {navigationStack.length === 0 && (
                 categories.map((category) => (
                   <div key={category.name}>
                     <button
