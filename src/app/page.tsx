@@ -153,21 +153,6 @@ export default function HomePage() {
   });
 
 
-  function getCurrentSubcategories() {
-    let currentLevel = categories;
-
-    for (const categoryName of navigationStack) {
-      const foundCategory = currentLevel.find(cat => cat.name === categoryName);
-      if (foundCategory) {
-        currentLevel = foundCategory.subcategories;
-      } else {
-        currentLevel = [];
-        break;
-      }
-    }
-
-    return currentLevel;
-  }
 
 
   const handleCategoryClick = (categoryName: string) => {
@@ -484,7 +469,9 @@ export default function HomePage() {
               const discountPercent = parseFloat(discountString) || 0;
 
               // Calculate original price safely
-              const originalPrice = discountPercent > 0 && currentPrice > 0 ? (currentPrice / (1 - discountPercent / 100)) : 0;
+              const originalPrice = discountPercent > 0 && currentPrice > 0
+                ? (currentPrice / (1 - discountPercent / 100))
+                : currentPrice;
 
               return (
                 <Link
