@@ -50,126 +50,87 @@ export default function HomePage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Expanded nested category structure
   const categories = [
     {
       name: 'Mobiles',
       subcategories: [
-        {
-          name: 'Smartphones',
-          subcategories: [
-            {
-              name: 'Android Phones',
-              subcategories: [
-                { name: 'By Discount', subcategories: [] },
-                { name: 'By Price', subcategories: [] },
-                { name: 'By Brand', subcategories: [] }
-              ]
-            },
-            {
-              name: 'iPhones',
-              subcategories: [
-                { name: 'By Discount', subcategories: [] },
-                { name: 'By Price', subcategories: [] },
-                { name: 'By Brand', subcategories: [] }
-              ]
-            }
-          ]
-        },
-        { name: 'Accessories', subcategories: [] },
-        { name: 'Feature Phones', subcategories: [] }
+        { name: 'Smartphones', subcategories: [] },
+        { name: 'Feature Phones', subcategories: [] },
+        { name: 'Mobile Accessories', subcategories: [] },
+        { name: 'iPhones', subcategories: [] }
       ]
     },
     {
-      name: 'Electronics & Gadgets',
+      name: 'Electronics',
       subcategories: [
+        { name: 'Laptops', subcategories: [] },
         { name: 'Tablets', subcategories: [] },
-        {
-          name: 'Headphones',
-          subcategories: [
-            { name: 'By Discount', subcategories: [] },
-            { name: 'By Price', subcategories: [] },
-            { name: 'By Brand', subcategories: [] }
-          ]
-        },
-        {
-          name: 'Cameras',
-          subcategories: [
-            { name: 'DSLR', subcategories: [] },
-            { name: 'Mirrorless', subcategories: [] },
-            { name: 'By Price', subcategories: [] }
-          ]
-        }
+        { name: 'Headphones', subcategories: [] },
+        { name: 'Cameras', subcategories: [] },
+        { name: 'Wearables', subcategories: [] },
+        { name: 'Speakers', subcategories: [] },
+        { name: 'Smartwatches', subcategories: [] },
+        { name: 'Power Banks', subcategories: [] }
       ]
     },
     {
-      name: 'Beauty & Personal Care',
+      name: 'Fashion',
       subcategories: [
-        {
-          name: 'Makeup',
-          subcategories: [
-            { name: 'Face', subcategories: [] },
-            { name: 'Eyes', subcategories: [] },
-            { name: 'Lips', subcategories: [] }
-          ]
-        },
-        {
-          name: 'Skincare',
-          subcategories: [
-            { name: 'Moisturizers', subcategories: [] },
-            { name: 'Cleansers', subcategories: [] },
-            { name: 'Serums', subcategories: [] }
-          ]
-        }
+        { name: 'Men’s Clothing', subcategories: [] },
+        { name: 'Women’s Clothing', subcategories: [] },
+        { name: 'Footwear', subcategories: [] },
+        { name: 'Watches', subcategories: [] },
+        { name: 'Bags', subcategories: [] },
+        { name: 'Accessories', subcategories: [] }
       ]
     },
     {
-      name: 'Fashion & Apparel',
+      name: 'Beauty & Skin Care',
       subcategories: [
-        {
-          name: 'Men',
-          subcategories: [
-            { name: 'Shoes', subcategories: [] },
-            { name: 'Clothing', subcategories: [] },
-            { name: 'Accessories', subcategories: [] }
-          ]
-        },
-        {
-          name: 'Women',
-          subcategories: [
-            { name: 'Shoes', subcategories: [] },
-            { name: 'Clothing', subcategories: [] },
-            { name: 'Accessories', subcategories: [] }
-          ]
-        },
-        {
-          name: 'Kids',
-          subcategories: [
-            { name: 'Toys', subcategories: [] },
-            { name: 'Shoes', subcategories: [] },
-            { name: 'Clothing', subcategories: [] }
-          ]
-        }
+        { name: 'Makeup', subcategories: [] },
+        { name: 'Skin & Hair', subcategories: [] },
+        { name: 'Fragrances', subcategories: [] },
+        { name: 'Bath & Body', subcategories: [] }
       ]
     },
     {
-      name: 'Home Appliances',
+      name: 'Sports & Fitness',
       subcategories: [
-        {
-          name: 'Kitchen Appliances',
-          subcategories: [
-            { name: 'Microwaves', subcategories: [] },
-            { name: 'Coffee Makers', subcategories: [] },
-            { name: 'Air Fryers', subcategories: [] }
-          ]
-        },
-        {
-          name: 'Vacuum Cleaners',
-          subcategories: [
-            { name: 'Robotic', subcategories: [] },
-            { name: 'Handheld', subcategories: [] }
-          ]
-        }
+        { name: 'Gym Equipment', subcategories: [] },
+        { name: 'Fitness Trackers', subcategories: [] },
+        { name: 'Sportswear', subcategories: [] },
+        { name: 'Outdoor Gear', subcategories: [] },
+        { name: 'Yoga Mats', subcategories: [] }
+      ]
+    },
+    {
+      name: 'Books',
+      subcategories: [
+        { name: 'Fiction', subcategories: [] },
+        { name: 'Non-Fiction', subcategories: [] },
+        { name: 'Academic', subcategories: [] },
+        { name: 'Children’s Books', subcategories: [] },
+        { name: 'Self-Help', subcategories: [] }
+      ]
+    },
+    {
+      name: 'Groceries',
+      subcategories: [
+        { name: 'Snacks', subcategories: [] },
+        { name: 'Beverages', subcategories: [] },
+        { name: 'Personal Care', subcategories: [] },
+        { name: 'Household Supplies', subcategories: [] },
+        { name: 'Fresh Produce', subcategories: [] }
+      ]
+    },
+    {
+      name: 'Home & Appliances',
+      subcategories: [
+        { name: 'Kitchen Appliances', subcategories: [] },
+        { name: 'Furniture', subcategories: [] },
+        { name: 'Cleaning Supplies', subcategories: [] },
+        { name: 'Home Decor', subcategories: [] },
+        { name: 'Lighting', subcategories: [] }
       ]
     }
   ];
@@ -341,11 +302,19 @@ export default function HomePage() {
       filteredDeals.sort((a, b) => parseFloat(b.discount.replace('%', '')) - parseFloat(a.discount.replace('%', '')));
     }
   } else {
-    filteredDeals = normalizedDeals.filter((deal) => {
-      const categoryMatch = selectedCategory ? deal.category === selectedCategory : true;
-      const subcategoryMatch = navigationStack.length > 1 ? deal.subcategory === navigationStack[navigationStack.length - 1] : true;
-      return categoryMatch && subcategoryMatch;
-    });
+    // When no search query is active, filter deals based on navigationStack
+    if (navigationStack.length === 2) {
+      // Apply filtering only when a subcategory is selected
+      filteredDeals = normalizedDeals.filter((deal) => {
+        return (
+          deal.category.trim().toLowerCase() === navigationStack[0].trim().toLowerCase() &&
+          deal.subcategory.trim().toLowerCase() === navigationStack[1].trim().toLowerCase()
+        );
+      });
+    } else {
+      // Show all deals or no deals when only category is selected
+      filteredDeals = normalizedDeals;
+    }
   }
 
   return (
