@@ -98,87 +98,113 @@ export default function DealPage() {
 
   return (
     <div onClick={() => setSuggestions([])}>
-      <header className="flex items-center bg-black h-28 px-4 py-0 shadow w-full justify-between">
+      <header className="flex flex-col md:flex-row items-center bg-black h-auto md:h-28 px-4 py-4 shadow w-full justify-between space-y-4 md:space-y-0">
         <div className="flex items-center cursor-pointer" onClick={() => window.location.href = '/'}>
-          <Image src="/chorebazaar-logo.png" alt="ChoreBazaar Logo" width={112} height={112} className="h-full w-auto object-contain" />
+          <Image src="/chorebazaar-logo.png" alt="ChoreBazaar Logo" width={80} height={80} className="h-20 w-20 object-contain" />
           <div className="ml-4">
             <h1 className="text-4xl font-bold text-white">ChoreBazaar</h1>
-            <p className="text-lg text-gray-300">Handpicked Deals. Less Noise. More Value.</p>
+            <p className="text-sm md:text-lg lg:text-xl text-gray-300 text-center md:text-left">
+              Handpicked Deals. Less Noise. More Value.
+            </p>
           </div>
         </div>
-
-        <nav className="flex space-x-8">
-          <Link href="/" className="text-white hover:text-gray-400">Home</Link>
+        <nav className="flex flex-row space-x-4 md:space-x-8 items-center text-sm md:text-base overflow-x-auto">
           <Link href="/about" className="text-white hover:text-gray-400">About Us</Link>
           <Link href="/terms-and-conditions" className="text-white hover:text-gray-400">Terms & Conditions</Link>
           <Link href="/contact" className="text-white hover:text-gray-400">Contact Us</Link>
         </nav>
       </header>
-      <div className="flex justify-end mt-6 mb-6 relative pr-4" onClick={(e) => e.stopPropagation()}>
-        <input
-          type="text"
-          placeholder="Search deals..."
-          value={searchQuery}
-          onFocus={(e) => e.target.placeholder = ''}
-          onBlur={(e) => e.target.placeholder = 'Search deals...'}
-          onChange={(e) => {
-            const query = e.target.value;
-            setSearchQuery(query);
-            setSelectedSuggestionIndex(-1);
-            if (query.trim()) {
-              const filteredSuggestions = relatedDeals
-                .filter((deal) => deal.title.toLowerCase().includes(query.toLowerCase()))
-                .slice(0, 4);
-              setSuggestions(filteredSuggestions);
-            } else {
-              setSuggestions([]);
-            }
-          }}
-          onKeyDown={(e) => {
-            if (e.key === 'ArrowDown') {
-              e.preventDefault();
-              setSelectedSuggestionIndex((prevIndex) =>
-                prevIndex < suggestions.length - 1 ? prevIndex + 1 : 0
-              );
-            } else if (e.key === 'ArrowUp') {
-              e.preventDefault();
-              setSelectedSuggestionIndex((prevIndex) =>
-                prevIndex > 0 ? prevIndex - 1 : suggestions.length - 1
-              );
-            } else if (e.key === 'Enter') {
-              e.preventDefault();
-              if (selectedSuggestionIndex >= 0 && selectedSuggestionIndex < suggestions.length) {
-                window.location.href = `/deals/${suggestions[selectedSuggestionIndex].id}`;
+
+      <div
+        className="flex border border-white w-full mt-4 ml-4 mr-4 px-4 shadow-lg"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <Link
+          href="/"
+          className="flex-1 flex items-center justify-center text-white hover:text-gray-400 text-sm md:text-base py-2 hover:bg-gray-700 active:bg-gray-800 cursor-pointer transition-all duration-200"
+        >
+          Home
+        </Link>
+
+        <div className="relative flex-1">
+          <button
+            className="flex items-center justify-center text-white text-sm md:text-base py-2 hover:bg-gray-700 active:bg-gray-800 cursor-pointer transition-all duration-200 w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            ☰
+          </button>
+        </div>
+
+        <div className="relative flex-1">
+          <input
+            type="text"
+            placeholder="Search anything"
+            value={searchQuery}
+            onFocus={(e) => {
+              e.target.placeholder = '';
+              e.target.setSelectionRange(e.target.value.length, e.target.value.length);
+            }}
+            onBlur={(e) => e.target.placeholder = 'Search anything'}
+            onChange={(e) => {
+              const query = e.target.value;
+              setSearchQuery(query);
+              setSelectedSuggestionIndex(-1);
+              if (query.trim() === '') {
+                setSuggestions([]);
               } else {
-                window.location.href = `/?query=${encodeURIComponent(searchQuery.trim())}`;
+                const matches = relatedDeals.filter(deal =>
+                  deal.title.toLowerCase().includes(query.toLowerCase())
+                ).slice(0, 4);
+                setSuggestions(matches);
               }
-            }
-          }}
-          className="px-4 py-2 rounded-full bg-transparent text-white w-80 border border-white"
-        />
-        {suggestions.length > 0 && (
-          <ul className="absolute mt-12 w-80 max-h-40 overflow-y-auto text-sm space-y-1">
-            {suggestions.map((suggestion, index) => (
-              <li
-                key={suggestion.id}
-                className={`flex items-center cursor-pointer p-1 ${index === selectedSuggestionIndex ? 'bg-gray-600' : ''}`}
-                onMouseEnter={() => setSelectedSuggestionIndex(index)}
-                onClick={() => window.location.href = `/deals/${suggestion.id}`}
-              >
-                <Image src={suggestion.image} alt={suggestion.title} width={30} height={30} className="rounded mr-2" />
-                <span className="text-white">
-                  {suggestion.title.length > 20 ? suggestion.title.slice(0, 20) + '..' : suggestion.title}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                setSelectedSuggestionIndex((prevIndex) =>
+                  prevIndex < suggestions.length - 1 ? prevIndex + 1 : 0
+                );
+              } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                setSelectedSuggestionIndex((prevIndex) =>
+                  prevIndex > 0 ? prevIndex - 1 : suggestions.length - 1
+                );
+              } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (selectedSuggestionIndex >= 0 && selectedSuggestionIndex < suggestions.length) {
+                  window.location.href = `/deals/${suggestions[selectedSuggestionIndex].id}`;
+                } else {
+                  window.location.href = `/?query=${encodeURIComponent(searchQuery.trim())}`;
+                }
+                setSuggestions([]);
+              }
+            }}
+            className="w-full h-full px-4 py-2 bg-transparent text-white text-center hover:bg-gray-700 active:bg-gray-800 cursor-text transition-all duration-200"
+          />
+          {suggestions.length > 0 && (
+            <ul className="absolute top-full left-0 mt-2 w-full max-h-40 overflow-y-auto text-xs md:text-sm space-y-1 bg-black border border-gray-700 rounded z-50">
+              {suggestions.map((suggestion, index) => (
+                <li
+                  key={suggestion.id}
+                  className={`flex items-center cursor-pointer p-1 ${index === selectedSuggestionIndex ? 'bg-gray-600' : ''}`}
+                  onMouseEnter={() => setSelectedSuggestionIndex(index)}
+                  onClick={() => window.location.href = `/deals/${suggestion.id}`}
+                >
+                  <Image src={suggestion.image} alt={suggestion.title} width={30} height={30} className="rounded mr-2" />
+                  <span className="text-white truncate block w-full">
+                    {suggestion.title}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
 
-      <div className="min-h-screen bg-black text-white p-4 sm:p-8 flex flex-col items-center">
+      <div className="min-h-screen bg-black text-white p-2 sm:p-4 flex flex-col items-center">
         <div className="flex flex-col sm:flex-row items-center sm:items-start w-full max-w-4xl mb-6 pl-4">
-          <div className="sm:mr-6 mb-4 sm:mb-0">
-            <Image src={deal.image} alt={deal.title} width={200} height={150} className="rounded max-w-full h-auto" />
+          <div className="sm:mr-6 mb-4 sm:mb-0 w-full sm:w-auto">
+            <Image src={deal.image} alt={deal.title} width={300} height={200} className="rounded w-full sm:w-auto h-auto object-contain" />
           </div>
           <div className="flex-1 text-left">
             <h1 className="text-2xl sm:text-3xl font-bold mb-4 text-left">{deal.title}</h1>
@@ -218,9 +244,9 @@ export default function DealPage() {
             {relatedDeals.length > 0 ? (
               [...relatedDeals, ...relatedDeals, ...relatedDeals].map((item, index) => {
                 return (
-                  <Link key={`${item.id}-${index}`} href={`/deals/${item.id}`} className="flex-none w-48 bg-gray-700 rounded p-4 hover:bg-gray-600 transition">
-                    <Image src={item.image} alt={item.title} width={160} height={100} className="rounded object-cover mx-auto mb-2" />
-                    <p className="text-center text-sm">{item.title}</p>
+                  <Link key={`${item.id}-${index}`} href={`/deals/${item.id}`} className="flex-none w-40 sm:w-48 bg-gray-700 rounded p-4 hover:bg-gray-600 transition">
+                    <Image src={item.image} alt={item.title} width={160} height={100} className="rounded object-contain w-full h-28 sm:h-32 mx-auto mb-2" />
+                    <p className="text-center text-xs sm:text-sm break-words">{item.title}</p>
                   </Link>
                 );
               })
