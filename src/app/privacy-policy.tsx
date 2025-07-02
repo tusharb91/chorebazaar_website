@@ -16,7 +16,7 @@ export default function PrivacyPolicy() {
 
       <h2 className="text-2xl font-semibold mb-2">Third Party Privacy Policies:</h2>
       <p className="mb-4">
-        Amazon and other affiliate partners may collect data through their own tracking systems when you click on Special Links from our website. We do not control these cookies or tracking mechanisms. Please review Amazon's privacy policy directly at: https://www.amazon.in/gp/help/customer/display.html?nodeId=201909010
+        Amazon and other affiliate partners may collect data through their own tracking systems when you click on Special Links from our website. We do not control these cookies or tracking mechanisms. Please review Amazon&#39;s privacy policy directly at: https://www.amazon.in/gp/help/customer/display.html?nodeId=201909010
       </p>
 
       <h2 className="text-2xl font-semibold mb-2">Use of Cookies:</h2>
