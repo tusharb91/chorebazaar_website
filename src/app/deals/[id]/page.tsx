@@ -204,7 +204,7 @@ export default function DealPage() {
       <div className="min-h-screen bg-black text-white p-2 sm:p-4 flex flex-col items-center">
         <div className="flex flex-col sm:flex-row items-center sm:items-start w-full max-w-4xl mb-6 pl-4">
           <div className="sm:mr-6 mb-4 sm:mb-0 w-full sm:w-auto">
-            <Image src={deal.image} alt={deal.title} width={300} height={200} className="rounded w-full sm:w-auto h-auto object-contain" />
+            <Image src={deal.image} alt={deal.title} width={300} height={225} className="rounded w-[300px] h-[225px] sm:w-[400px] sm:h-[300px] object-contain" />
           </div>
           <div className="flex-1 text-left">
             <h1 className="text-2xl sm:text-3xl font-bold mb-4 text-left">{deal.title}</h1>
