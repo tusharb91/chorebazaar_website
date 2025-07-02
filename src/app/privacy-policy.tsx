@@ -21,7 +21,7 @@ export default function PrivacyPolicy() {
 
       <h2 className="text-2xl font-semibold mb-2">Use of Cookies:</h2>
       <p className="mb-4">
-        Third-party vendors, including Amazon, may use cookies to serve ads and track qualifying purchases. By using our site, you consent to the use of such cookies in accordance with Amazon's policies. You may choose to disable cookies through your individual browser options.
+        Third-party vendors, including Amazon, may use cookies to serve ads and track qualifying purchases. By using our site, you consent to the use of such cookies in accordance with Amazon&#39;s policies. You may choose to disable cookies through your individual browser options.
       </p>
 
       <h2 className="text-2xl font-semibold mb-2">Disclosure:</h2>
