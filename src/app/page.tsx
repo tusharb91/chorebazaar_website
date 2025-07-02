@@ -73,6 +73,7 @@ export default function HomePage() {
         { name: 'Cameras', subcategories: [] },
         { name: 'Wearables', subcategories: [] },
         { name: 'Speakers', subcategories: [] },
+        { name: 'Television', subcategories: [] },
         { name: 'Smartwatches', subcategories: [] },
         { name: 'Power Banks', subcategories: [] }
       ]
@@ -316,7 +317,7 @@ export default function HomePage() {
           <Image src="/chorebazaar-logo.png" alt="ChoreBazaar Logo" width={80} height={80} className="h-20 w-20 object-contain" />
           <div className="ml-4">
             <h1 className="text-4xl font-bold text-white">ChoreBazaar</h1>
-            <p className="text-lg text-gray-300">Handpicked Deals. Less Noise. More Value.</p>
+            <p className="text-sm md:text-lg lg:text-xl text-gray-300 text-center md:text-left">Handpicked Deals. Less Noise. More Value.</p>
           </div>
         </div>
 
@@ -455,7 +456,10 @@ export default function HomePage() {
       {/* Deals Section */}
       <div className="flex-1 p-4 md:p-8 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-10 mt-8">
           {filteredDeals.length > 0 ? (
-            filteredDeals.slice(0, itemsToShow).map((deal) => {
+            filteredDeals
+              .sort((a, b) => parseFloat(b.discount.replace('%', '')) - parseFloat(a.discount.replace('%', '')))
+              .slice(0, itemsToShow)
+              .map((deal) => {
               // Ensure price is a valid number
               const priceValue = deal.price && !isNaN(Number(deal.price.toString().replace(/[^\d.]/g, '')))
                 ? deal.price.toString().replace(/[^\d.]/g, '')
@@ -477,25 +481,25 @@ export default function HomePage() {
                 <Link
                   key={deal.id ? deal.id.toString() : `${deal.title || 'Untitled'}-${deal.link || Math.random()}`}
                   href={`/deals/${deal.id}`}
-                  className="border border-gray-700 rounded-2xl p-3 text-center bg-black shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-200 flex flex-col cursor-pointer min-h-[320px]"
+                  className="border border-gray-700 rounded-2xl p-3 md:p-4 lg:p-5 text-center bg-black shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-200 flex flex-col cursor-pointer min-h-[320px]"
                 >
                   <Image
                     src={deal.image && deal.image.trim() !== '' ? deal.image : '/placeholder.png'}
                     alt={deal.title ? deal.title : 'No Title Available'}
-                    width={120}
-                    height={80}
-                    className="rounded object-cover mx-auto mb-2"
+                    width={160}
+                    height={160}
+                    className="object-contain mx-auto mb-2 w-auto h-40"
                   />
-                  <h2 className="text-lg font-semibold w-full break-words min-h-[48px] flex items-center justify-center text-center px-2">
-                    {deal.title.length > 20 ? `${deal.title.slice(0, 20)}...` : deal.title}
+                  <h2 className="text-sm md:text-base lg:text-lg font-semibold w-full break-words min-h-[48px] flex items-center justify-center text-center px-2 whitespace-normal">
+                    {deal.title}
                   </h2>
-                  <p className="text-gray-400 mt-2">
-                    Original: ₹{originalPrice.toLocaleString('en-IN', { minimumFractionDigits: 0 })}
+                  <p className="text-gray-400 mt-2 line-through text-xs md:text-sm lg:text-base">
+                    ₹{originalPrice.toLocaleString('en-IN', { minimumFractionDigits: 0 })}
                   </p>
-                  <p className="text-xl font-bold mt-2 text-white">
+                  <p className="text-lg md:text-xl lg:text-2xl font-bold mt-2 text-white">
                     ₹{currentPrice.toLocaleString('en-IN', { minimumFractionDigits: 0 })}
                   </p>
-                  <p className="text-green-400 mt-1 font-semibold">
+                  <p className="text-green-400 mt-1 font-semibold text-sm md:text-base lg:text-lg">
                     {deal.discount} Off
                   </p>
                 </Link>
@@ -506,8 +510,27 @@ export default function HomePage() {
           )}
       </div>
       {/* Footer Section */}
-      <footer className="bg-black text-white text-center py-4 text-sm border-t border-gray-700 mt-4">
-        Amazon and the Amazon logo are trademarks of Amazon.com, Inc. or its affiliates.
+      <footer className="bg-black text-white text-center py-6 text-sm border-t border-gray-700 mt-4">
+        <div className="max-w-4xl mx-auto px-4 space-y-4">
+          <p>
+            ChoreBazaar is a participant in the Amazon Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.in.
+          </p>
+          <p>
+            As an Amazon Associate, we earn from qualifying purchases. Prices and availability are accurate as of the time of display and are subject to change. Product prices and availability on Amazon at the time of purchase will apply to your order.
+          </p>
+          <p>
+            All trademarks, logos, and brand names are the property of their respective owners. All company, product, and service names used on this site are for identification purposes only. Use of these names, trademarks, and brands does not imply endorsement.
+          </p>
+          <p>
+            By using our website, you acknowledge that we may earn a commission if you make a purchase through our affiliate links.
+          </p>
+          <p>
+            Product prices and availability are accurate as of the time shown and may change. Any price and availability information displayed on Amazon at the time of purchase will apply to your order.
+          </p>
+          <p className="text-gray-500 text-xs mt-4">
+            © {new Date().getFullYear()} ChoreBazaar. All rights reserved.
+          </p>
+        </div>
       </footer>
     </div>
   );

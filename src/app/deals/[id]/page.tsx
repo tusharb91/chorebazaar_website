@@ -206,9 +206,7 @@ export default function DealPage() {
           </div>
         </div>
 
-        <p className="text-sm text-gray-400 mt-6 text-center max-w-2xl">
-          Disclaimer: ChoreBazaar is an Amazon affiliate platform. We may earn a commission from qualifying purchases made through the links on this page.
-        </p>
+        {/* Footer Disclaimer moved to comprehensive footer below */}
 
         <div className="mt-12 w-full max-w-6xl">
           <h2 className="text-xl font-semibold mb-4 text-center">Related Items</h2>
@@ -232,6 +230,25 @@ export default function DealPage() {
           </div>
         </div>
       </div>
+      <footer className="bg-black text-white text-center py-6 text-sm border-t border-gray-700 mt-4">
+        <div className="max-w-4xl mx-auto px-4 space-y-4">
+          <p>
+            ChoreBazaar is a participant in the Amazon Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.in.
+          </p>
+          <p>
+            As an Amazon Associate, we earn from qualifying purchases. Prices and availability are accurate as of the time of display and are subject to change. Product prices and availability on Amazon at the time of purchase will apply to your order.
+          </p>
+          <p>
+            All trademarks, logos, and brand names are the property of their respective owners. All company, product, and service names used on this site are for identification purposes only. Use of these names, trademarks, and brands does not imply endorsement.
+          </p>
+          <p>
+            By using our website, you acknowledge that we may earn a commission if you make a purchase through our affiliate links.
+          </p>
+          <p className="text-gray-500 text-xs mt-4">
+            © {new Date().getFullYear()} ChoreBazaar. All rights reserved.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
