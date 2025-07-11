@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import PropTypes from 'prop-types';
 
 export default function DealCard({ title, imageUrl, price, dealLink }) {
   return (
@@ -32,3 +33,10 @@ export default function DealCard({ title, imageUrl, price, dealLink }) {
     </div>
   );
 }
+
+DealCard.propTypes = {
+  title: PropTypes.string.isRequired,
+  imageUrl: PropTypes.string.isRequired,
+  price: PropTypes.string.isRequired,
+  dealLink: PropTypes.string.isRequired,
+};

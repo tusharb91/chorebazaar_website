@@ -1,7 +1,7 @@
 import { prisma } from '../lib/db';
 import { productList } from '../data/productList';
 import { AmazonProduct } from './amazonTypes';
-import { getAllCachedProducts, updateCache } from './cacheHandler';
+import { updateCache } from './cacheHandler';
 import { searchAmazonProducts } from './amazonApi';
 
 export async function refreshProductInfo() {

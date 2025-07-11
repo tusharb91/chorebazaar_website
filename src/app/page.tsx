@@ -40,9 +40,14 @@ export default function HomePage() {
         if (!data || !Array.isArray(data.deals)) throw new Error('Invalid deals data');
         setDeals(data.deals);
         console.log('Fetched deals:', data.deals);
-      } catch (error: any) {
-        setError(error.message || 'Unknown error');
-        console.error('Error fetching deals:', error);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          setError(error.message);
+          console.error('Error fetching deals:', error);
+        } else {
+          setError('Unknown error');
+          console.error('Unexpected error:', error);
+        }
       } finally {
         setIsLoading(false);
       }
