@@ -9,19 +9,25 @@ generator client {
   output   = "../src/generated/prisma"
 }
 
+model Click {
+  id        String   @id @default(cuid())
+  asin      String
+  timestamp DateTime
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model Product {
-  id                Int      @id @default(autoincrement())
-  asin              String   @unique
-  title             String
-  image             String
-  price             Float
-  currency          String
-  discount          Float?   // percentage
-  lastPriceUpdatedAt DateTime
-  lastInfoUpdatedAt  DateTime
+  id                 Int      @id @default(autoincrement())
+  asin               String   @unique
+  title              String
+  image              String
+  price              Float?
+  currency           String?
+  discount           Float?   // percentage
+  lastPriceUpdatedAt DateTime?
+  lastInfoUpdatedAt  DateTime?
 }

@@ -1,41 +1,22 @@
+import { prisma } from '@/lib/db';
 import { AmazonProduct } from './amazonTypes';
 
-type CacheEntry = {
-  data: AmazonProduct;
-  expiry: number;
-};
+export async function getAllCachedProducts(): Promise<AmazonProduct[]> {
+  const rawProducts = await prisma.product.findMany({
+    orderBy: {
+      lastPriceUpdatedAt: 'desc',
+    },
+  });
 
-const cache: Record<string, CacheEntry> = {};
-
-export function setCache(key: string, data: AmazonProduct, ttlInSeconds: number): void {
-  const expiry = Date.now() + ttlInSeconds * 1000;
-  cache[key] = { data, expiry };
-}
-
-export function getCache(key: string): AmazonProduct | null {
-  const cachedItem = cache[key];
-  if (!cachedItem) return null;
-
-  if (Date.now() > cachedItem.expiry) {
-    delete cache[key];
-    return null;
-  }
-
-  return cachedItem.data;
-}
-
-export function invalidateCache(key: string): void {
-  delete cache[key];
-}
-
-export function getAllCachedKeys(): string[] {
-  return Object.keys(cache);
-}
-
-export function getAllCachedProducts(): AmazonProduct[] {
-  return Object.values(cache).map(entry => entry.data);
-}
-
-export function updateCache(key: string, newData: AmazonProduct, ttlInSeconds: number): void {
-  setCache(key, newData, ttlInSeconds);
+  return rawProducts.map(p => ({
+    id: p.id,
+    asin: p.asin,
+    title: p.title,
+    image: p.image,
+    price: p.price ?? undefined,
+    currency: p.currency ?? undefined,
+    discount: p.discount ?? undefined,
+    lastPriceUpdatedAt: p.lastPriceUpdatedAt ?? undefined,
+    lastInfoUpdatedAt: p.lastInfoUpdatedAt ?? undefined,
+  }));
 }

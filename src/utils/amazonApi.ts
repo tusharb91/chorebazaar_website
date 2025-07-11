@@ -62,12 +62,23 @@ export const searchAmazonProducts = async ({ asins = [], resources = [], keyword
       await incrementRequestCount();
       const response = await axios.post('https://webservices.amazon.in/paapi5/getitems', payload, { headers });
       console.log('Amazon GetItems API response:', response.data);
-      return response.data.ItemsResult?.Items?.map((item: any) => ({
-        ASIN: item.ASIN,
-        Offers: item.Offers,
-        Title: item.ItemInfo?.Title?.DisplayValue || '',
-        Image: item.Images?.Primary?.Medium?.URL || ''
-      })) || [];
+      return (
+        response.data.ItemsResult?.Items
+          ?.map((item: any) => {
+            const title = item.ItemInfo?.Title?.DisplayValue;
+            const image = item.Images?.Primary?.Large?.URL;
+
+            if (!title || !image) return null;
+
+            return {
+              Asin: item.ASIN,
+              Title: title,
+              Image: image,
+              Offers: item.Offers ?? null
+            };
+          })
+          .filter((product: any) => product !== null) || []
+      );
     } else if (keywords) {
       // If keywords are provided, use SearchItems
       const amzTarget = 'com.amazon.paapi5.v1.ProductAdvertisingAPIv1.SearchItems';
@@ -109,12 +120,23 @@ export const searchAmazonProducts = async ({ asins = [], resources = [], keyword
       await incrementRequestCount();
       const response = await axios.post(endpoint, payload, { headers });
       console.log('Amazon SearchItems API response:', response.data);
-      return response.data.SearchResult?.Items?.map((item: any) => ({
-        ASIN: item.ASIN,
-        Offers: item.Offers,
-        Title: item.ItemInfo?.Title?.DisplayValue || '',
-        Image: item.Images?.Primary?.Medium?.URL || ''
-      })) || [];
+      return (
+        response.data.SearchResult?.Items
+          ?.map((item: any) => {
+            const title = item.ItemInfo?.Title?.DisplayValue;
+            const image = item.Images?.Primary?.Large?.URL;
+
+            if (!title || !image) return null;
+
+            return {
+              Asin: item.ASIN,
+              Title: title,
+              Image: image,
+              Offers: item.Offers ?? null
+            };
+          })
+          .filter((product: any) => product !== null) || []
+      );
     } else {
       throw new Error('Either ASINs or keywords must be provided.');
     }
@@ -170,18 +192,37 @@ export const getAmazonProductsByAsins = async (
 
     await incrementRequestCount();
     const response = await axios.post('https://webservices.amazon.in/paapi5/getitems', payload, { headers });
-    console.log('Amazon GetItems API response:', response.data);
-    return response.data;
+    console.log('Amazon GetItems API response:', response.data.ItemsResult.Items);
+    return (
+      response.data.ItemsResult?.Items
+        ?.map((item: any) => {
+          const title = item.ItemInfo?.Title?.DisplayValue;
+          const image = item.Images?.Primary?.Large?.URL;
+
+          if (!title || !image) return null;
+
+          return {
+            Asin: item.ASIN,
+            Title: title,
+            Image: image,
+            Offers: item.Offers ?? null
+          };
+        })
+        .filter((product: any) => product !== null) || []
+    );
   } catch (error) {
     console.error('Error fetching Amazon products by ASINs:', error);
     return null;
   }
 };
-export const searchAmazonByKeyword = async (keyword: string) => {
-  return await searchAmazonProducts({
+export const searchAmazonByKeyword = async (keyword: string): Promise<any[]> => {
+  const products = await searchAmazonProducts({
     keywords: keyword,
-    resources: ['ItemInfo.Title', 'Images.Primary.Medium', 'Offers.Listings.Price'],
+    resources: ['ItemInfo.Title', 'Images.Primary.Large', 'Offers.Listings.Price'],
   });
+
+  console.dir(products, { depth: null });
+  return products || [];
 };
 
 export const fetchAllKeywordProducts = async () => {
@@ -200,3 +241,12 @@ export const fetchAllKeywordProducts = async () => {
 
   return allProducts;
 };
+// Prisma upsert example for Product:
+// await prisma.product.upsert({
+//   where: { asin: asinValue },
+//   update: { /* fields to update */ },
+//   create: { asin: asinValue, /* other fields */ },
+// });
+
+// In refreshPrices or refreshProductInfo, you might see:
+// await prisma.product.upsert({ ... }) // to insert or update product info/prices

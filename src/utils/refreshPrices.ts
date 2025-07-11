@@ -1,44 +1,40 @@
-import { productList } from '../data/productList';
-import { getCache, setCache } from './cacheHandler';
 import { searchAmazonProducts } from './amazonApi';
+import { prisma } from '../lib/db';
 
 export async function refreshPrices() {
-    const { prisma } = await import('../lib/db');
     try {
-        const asins = productList.map(product => product.asin);
+        const products = await prisma.product.findMany({ select: { asin: true } });
+        const asins = products.map(p => p.asin);
 
-        // Break ASINs into batches of 10
         const batchSize = 10;
         for (let i = 0; i < asins.length; i += batchSize) {
             const batch = asins.slice(i, i + batchSize);
 
-            // Fetch updated prices for this batch
-            const updatedProducts = await searchAmazonProducts({ asins: batch, resources: ['Offers.Listings.Price'] });
+            const updatedProducts = await searchAmazonProducts({
+                asins: batch,
+                resources: ['Offers.Listings.Price']
+            });
+
+            if (!Array.isArray(updatedProducts)) {
+                console.warn('🛑 Skipping update: Amazon returned invalid or throttled response');
+                continue;
+            }
 
             for (const product of updatedProducts) {
-                const existingCache = getCache(product.asin);
-                if (existingCache && product.Offers?.Listings?.[0]?.Price) {
-                    const priceInfo = product.Offers.Listings[0].Price;
-
-                    (existingCache as any).price = priceInfo.Amount || (existingCache as any).price;
-                    (existingCache as any).currency = priceInfo.Currency || (existingCache as any).currency;
-
-                    setCache(product.asin, existingCache, 3600); // TTL = 1 hour
-
-                    // Also update in Prisma DB
+                const priceInfo = product.Offers?.Listings?.[0]?.Price;
+                if (priceInfo) {
                     await prisma.product.updateMany({
                         where: { asin: product.asin },
                         data: {
                             price: priceInfo.Amount,
                             currency: priceInfo.Currency,
-                            updatedAt: new Date()
+                            lastPriceUpdatedAt: new Date(),
                         }
                     });
                 }
             }
 
-            // Optional: Add delay between batches if necessary to avoid throttling
-            await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
+            await new Promise(resolve => setTimeout(resolve, 1000));
         }
 
         console.log('Price refresh completed successfully.');

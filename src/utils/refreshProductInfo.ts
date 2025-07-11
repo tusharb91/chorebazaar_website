@@ -1,55 +1,59 @@
-import { productList } from '../data/productList';
-import { AmazonProduct } from './amazonTypes';
-import { updateCache } from './cacheHandler';
 import { searchAmazonProducts } from './amazonApi';
+import { prisma } from '../lib/db'; // moved to top-level import
 
 export async function refreshProductInfo() {
+  let updatedCount = 0;
   try {
-    // Extract ASINs
-    const allAsins = productList.map(product => product.asin);
+    const products = await prisma.product.findMany({ select: { asin: true } });
+    const allAsins = products.map(p => p.asin);
 
-    // Batch ASINs (10 per request)
     for (let i = 0; i < allAsins.length; i += 10) {
       const batch = allAsins.slice(i, i + 10);
 
-      // Call Amazon API for product info (non-offer details)
-      const updatedProducts = await searchAmazonProducts({ asins: batch, resources: ['ItemInfo.Title', 'Images.Primary.Medium'] });
+      const updatedProducts = await searchAmazonProducts({
+        asins: batch,
+        resources: ['ItemInfo.Title', 'Images.Primary.Medium', 'Offers.Listings.Price']
+      });
 
-      // Update cache for each product
-      updatedProducts.forEach((product: AmazonProduct) => {
-        const priceInfo = product.Offers?.Listings?.[0]?.Price;
-        const title = product.title;
-        const image = product.image;
-        updateCache(product.asin, {
-          asin: product.asin,
-          title,
-          image,
-          price: priceInfo?.Amount,
-          currency: priceInfo?.Currency
-        }, 86400); // Cache for 1 day
+      for (const product of updatedProducts) {
+        const title = product?.ItemInfo?.Title?.DisplayValue;
+        const image = product?.Images?.Primary?.Medium?.URL;
+        const priceInfo = product?.Offers?.Listings?.[0]?.Price;
 
-        import('../lib/db').then(({ prisma }) => {
-          prisma.product.upsert({
+        if (!title || !image) {
+          console.warn('⚠️ Skipping product with missing title/image:', product.asin);
+          continue;
+        }
+
+        try {
+          await prisma.product.upsert({
             where: { asin: product.asin },
             update: {
               title,
-              image
+              image,
+              lastInfoUpdatedAt: new Date()
             },
             create: {
               asin: product.asin,
               title,
-              image
+              image,
+              price: priceInfo?.Amount ?? 0,
+              currency: priceInfo?.Currency ?? 'USD',
+              lastPriceUpdatedAt: new Date(),
+              lastInfoUpdatedAt: new Date()
             }
-          }).catch((err: any) => console.error(`Failed to sync product ${product.asin} to DB:`, err));
-        });
-      });
+          });
+          updatedCount++;
+        } catch (err) {
+          console.error(`❌ Failed to sync product ${product.asin} to DB:`, err);
+        }
+      }
 
-      // Add a small delay to avoid hitting rate limits
+      console.log(`🔁 Batch ${i / 10 + 1}: Updated ${updatedProducts.length} ASINs`);
       await new Promise(resolve => setTimeout(resolve, 200));
     }
 
-    console.log('Product info refreshed successfully.');
+    console.log(`✅ Product info refreshed. Total products updated: ${updatedCount}`);
   } catch (error) {
-    console.error('Error refreshing product info:', error);
-  }
-}
+    console.error('🔥 Error refreshing product info:', error);
+  }}

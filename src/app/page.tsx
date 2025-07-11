@@ -489,7 +489,11 @@ export default function HomePage() {
           <p className="text-red-500 text-center w-full mt-20">Failed to load deals: {error}</p>
         ) : filteredDeals.length > 0 ? (
           filteredDeals
-            .sort((a, b) => parseFloat(b.discount.replace('%', '')) - parseFloat(a.discount.replace('%', '')))
+            .sort((a, b) => {
+              const discountA = parseFloat((a.discount ?? '0').replace('%', ''));
+              const discountB = parseFloat((b.discount ?? '0').replace('%', ''));
+              return discountB - discountA;
+            })
             .slice(0, itemsToShow)
             .map((deal) => {
             // Ensure price is a valid number
