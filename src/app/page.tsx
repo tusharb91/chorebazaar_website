@@ -25,9 +25,14 @@ export default function HomePage() {
   // Suggestions state for search autocomplete
   const [suggestions, setSuggestions] = useState<Deal[]>([]);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState<number>(-1);
+  // Loading and error state
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchDealsFromAPI = async () => {
+      setIsLoading(true);
+      setError(null);
       try {
         const response = await fetch('/api/deals');
         if (!response.ok) throw new Error('Failed to fetch deals');
@@ -35,12 +40,25 @@ export default function HomePage() {
         if (!data || !Array.isArray(data.deals)) throw new Error('Invalid deals data');
         setDeals(data.deals);
         console.log('Fetched deals:', data.deals);
-      } catch (error) {
+      } catch (error: any) {
+        setError(error.message || 'Unknown error');
         console.error('Error fetching deals:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchDealsFromAPI();
+  }, []);
+
+  // On mount, extract query param for search
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const query = urlParams.get('q');
+    if (query) {
+      setSearchQuery(query);
+      setActiveSearchQuery(query);
+    }
   }, []);
 
   // Infinite scroll: load more items as user scrolls
@@ -390,7 +408,10 @@ export default function HomePage() {
               e.target.placeholder = '';
               e.target.setSelectionRange(e.target.value.length, e.target.value.length);
             }}
-            onBlur={(e) => e.target.placeholder = 'Search anything'}
+            onBlur={(e) => {
+              e.target.placeholder = 'Search anything';
+              // Do not clear searchQuery or suggestions here.
+            }}
             onChange={(e) => {
               const query = e.target.value;
               setSearchQuery(query);
@@ -403,6 +424,7 @@ export default function HomePage() {
                 ).slice(0, 4);
                 setSuggestions(matches);
               }
+              // Only update suggestions, not filtering, until Enter is pressed.
             }}
             onKeyDown={(e) => {
               if (e.key === 'ArrowDown') {
@@ -421,6 +443,7 @@ export default function HomePage() {
                   window.location.href = `/deals/${suggestions[selectedSuggestionIndex].id}`;
                 } else {
                   setActiveSearchQuery(searchQuery);
+                  window.history.replaceState(null, '', `/?q=${encodeURIComponent(searchQuery)}`);
                 }
                 setSuggestions([]);
               }
@@ -455,59 +478,63 @@ export default function HomePage() {
       {/* Inline dropdown for Categories and Subcategories */}
       {/* Deals Section */}
       <div className="flex-1 p-4 md:p-8 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-10 mt-8">
-          {filteredDeals.length > 0 ? (
-            filteredDeals
-              .sort((a, b) => parseFloat(b.discount.replace('%', '')) - parseFloat(a.discount.replace('%', '')))
-              .slice(0, itemsToShow)
-              .map((deal) => {
-              // Ensure price is a valid number
-              const priceValue = deal.price && !isNaN(Number(deal.price.toString().replace(/[^\d.]/g, '')))
-                ? deal.price.toString().replace(/[^\d.]/g, '')
-                : '0';
-              const currentPrice = parseFloat(priceValue) || 0;
+        {isLoading ? (
+          <p className="text-white text-center w-full mt-20">Loading deals...</p>
+        ) : error ? (
+          <p className="text-red-500 text-center w-full mt-20">Failed to load deals: {error}</p>
+        ) : filteredDeals.length > 0 ? (
+          filteredDeals
+            .sort((a, b) => parseFloat(b.discount.replace('%', '')) - parseFloat(a.discount.replace('%', '')))
+            .slice(0, itemsToShow)
+            .map((deal) => {
+            // Ensure price is a valid number
+            const priceValue = deal.price && !isNaN(Number(deal.price.toString().replace(/[^\d.]/g, '')))
+              ? deal.price.toString().replace(/[^\d.]/g, '')
+              : '0';
+            const currentPrice = parseFloat(priceValue) || 0;
 
-              // Ensure discount is a valid number
-              const discountString = deal.discount && !isNaN(Number(deal.discount.toString().replace(/[^\d.]/g, '')))
-                ? deal.discount.toString().replace(/[^\d.]/g, '')
-                : '0';
-              const discountPercent = parseFloat(discountString) || 0;
+            // Ensure discount is a valid number
+            const discountString = deal.discount && !isNaN(Number(deal.discount.toString().replace(/[^\d.]/g, '')))
+              ? deal.discount.toString().replace(/[^\d.]/g, '')
+              : '0';
+            const discountPercent = parseFloat(discountString) || 0;
 
-              // Calculate original price safely
-              const originalPrice = discountPercent > 0 && currentPrice > 0
-                ? (currentPrice / (1 - discountPercent / 100))
-                : currentPrice;
+            // Calculate original price safely
+            const originalPrice = discountPercent > 0 && currentPrice > 0
+              ? (currentPrice / (1 - discountPercent / 100))
+              : currentPrice;
 
-              return (
-                <Link
-                  key={deal.id ? deal.id.toString() : `${deal.title || 'Untitled'}-${deal.link || Math.random()}`}
-                  href={`/deals/${deal.id}`}
-                  className="border border-gray-700 rounded-2xl p-3 md:p-4 lg:p-5 text-center bg-black shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-200 flex flex-col cursor-pointer min-h-[320px]"
-                >
-                  <Image
-                    src={deal.image && deal.image.trim() !== '' ? deal.image : '/placeholder.png'}
-                    alt={deal.title ? deal.title : 'No Title Available'}
-                    width={160}
-                    height={160}
-                    className="object-contain mx-auto mb-2 w-auto h-40"
-                  />
-                  <h2 className="text-sm md:text-base lg:text-lg font-semibold w-full break-words min-h-[48px] flex items-center justify-center text-center px-2 whitespace-normal">
-                    {deal.title}
-                  </h2>
-                  <p className="text-gray-400 mt-2 line-through text-xs md:text-sm lg:text-base">
-                    ₹{originalPrice.toLocaleString('en-IN', { minimumFractionDigits: 0 })}
-                  </p>
-                  <p className="text-lg md:text-xl lg:text-2xl font-bold mt-2 text-white">
-                    ₹{currentPrice.toLocaleString('en-IN', { minimumFractionDigits: 0 })}
-                  </p>
-                  <p className="text-green-400 mt-1 font-semibold text-sm md:text-base lg:text-lg">
-                    {deal.discount} Off
-                  </p>
-                </Link>
-              );
-            })
-          ) : (
-            <p className="text-white text-center w-full mt-20">No deals available at the moment.</p>
-          )}
+            return (
+              <Link
+                key={deal.id ? deal.id.toString() : `${deal.title || 'Untitled'}-${deal.link || Math.random()}`}
+                href={`/deals/${deal.id}`}
+                className="border border-gray-700 rounded-2xl p-3 md:p-4 lg:p-5 text-center bg-black shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-200 flex flex-col cursor-pointer min-h-[320px]"
+              >
+                <Image
+                  src={deal.image && deal.image.trim() !== '' ? deal.image : '/placeholder.png'}
+                  alt={deal.title ? deal.title : 'No Title Available'}
+                  width={160}
+                  height={160}
+                  className="object-contain mx-auto mb-2 w-auto h-40"
+                />
+                <h2 className="text-sm md:text-base lg:text-lg font-semibold w-full break-words min-h-[48px] flex items-center justify-center text-center px-2 whitespace-normal">
+                  {deal.title}
+                </h2>
+                <p className="text-gray-400 mt-2 line-through text-xs md:text-sm lg:text-base">
+                  ₹{originalPrice.toLocaleString('en-IN', { minimumFractionDigits: 0 })}
+                </p>
+                <p className="text-lg md:text-xl lg:text-2xl font-bold mt-2 text-white">
+                  ₹{currentPrice.toLocaleString('en-IN', { minimumFractionDigits: 0 })}
+                </p>
+                <p className="text-green-400 mt-1 font-semibold text-sm md:text-base lg:text-lg">
+                  {deal.discount} Off
+                </p>
+              </Link>
+            );
+          })
+        ) : (
+          <p className="text-white text-center w-full mt-20">No deals available at the moment.</p>
+        )}
       </div>
       {/* Footer Section */}
       <footer className="bg-black text-white text-center py-6 text-sm border-t border-gray-700 mt-4">

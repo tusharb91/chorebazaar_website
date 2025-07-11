@@ -15,6 +15,8 @@ interface Deal {
   description: string;
   category?: string;
   subcategory?: string;
+  // Optional field to accommodate future tracking if needed
+  trackClicks?: boolean;
 }
 
 export default function DealPage() {
@@ -91,6 +93,25 @@ export default function DealPage() {
       </div>
     );
   }
+
+  // Function to handle affiliate click tracking and redirect
+  const handleAffiliateClick = async (asin: string, destination: string) => {
+    try {
+      await fetch('/api/track-click', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          asin,
+          timestamp: new Date().toISOString(),
+          page: 'deal',
+        }),
+      });
+    } catch (err) {
+      console.error('Failed to track click:', err);
+    } finally {
+      window.open(destination, '_blank');
+    }
+  };
 
   const currentPrice = parseFloat(deal.price.replace(/[^\d.]/g, '')) || 0;
   const discountValue = parseFloat(deal.discount.replace(/[^\d.]/g, '')) || 0;
@@ -213,14 +234,12 @@ export default function DealPage() {
             <p className="text-green-400 mb-4 text-left">Discount: {deal.discount}</p>
             <p className="mb-6 max-w-2xl text-left">{deal.description}</p>
             {deal.link ? (
-              <a
-                href={deal.link}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={() => handleAffiliateClick(deal.id, deal.link)}
                 className="bg-white text-black px-4 py-2 sm:px-6 sm:py-3 rounded shadow hover:bg-gray-300 transition text-left"
               >
                 Buy on Amazon
-              </a>
+              </button>
             ) : (
               <button
                 className="bg-gray-500 text-white px-4 py-2 sm:px-6 sm:py-3 rounded shadow cursor-not-allowed"
