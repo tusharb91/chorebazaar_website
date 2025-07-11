@@ -1,9 +1,9 @@
-import { prisma } from '../lib/db';
 import { productList } from '../data/productList';
 import { getCache, setCache } from './cacheHandler';
 import { searchAmazonProducts } from './amazonApi';
 
 export async function refreshPrices() {
+    const { prisma } = await import('../lib/db');
     try {
         const asins = productList.map(product => product.asin);
 

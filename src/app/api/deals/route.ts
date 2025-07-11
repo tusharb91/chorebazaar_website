@@ -6,8 +6,8 @@ import { getAllCachedProducts } from '@/utils/cacheHandler';
 export async function GET() {
   try {
     console.log('API hit - refreshing prices and product info');
-    const { prisma } = await import('@/lib/db');
-    await refreshPrices(prisma);
+    // const { prisma } = await import('@/lib/db');
+    await refreshPrices();
     await refreshProductInfo();
     const products = await getAllCachedProducts();
     return NextResponse.json({ products });

@@ -1,18 +1,18 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
 
 export async function POST(request: Request) {
   try {
+    const { prisma } = await import('@/lib/db');
     const { asin, timestamp } = await request.json();
 
-    if (!asin || !timestamp) {
-      return NextResponse.json({ error: 'Missing asin or timestamp' }, { status: 400 });
+    if (!asin) {
+      return NextResponse.json({ error: 'Missing asin' }, { status: 400 });
     }
 
     const click = await prisma.click.create({
       data: {
         asin,
-        timestamp: new Date(timestamp),
+        timestamp: timestamp ? new Date(timestamp) : new Date(),
       },
     });
 

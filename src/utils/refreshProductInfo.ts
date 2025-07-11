@@ -1,4 +1,3 @@
-import { prisma } from '../lib/db';
 import { productList } from '../data/productList';
 import { AmazonProduct } from './amazonTypes';
 import { updateCache } from './cacheHandler';
@@ -29,18 +28,20 @@ export async function refreshProductInfo() {
           currency: priceInfo?.Currency
         }, 86400); // Cache for 1 day
 
-        prisma.product.upsert({
-          where: { asin: product.asin },
-          update: {
-            title,
-            image
-          },
-          create: {
-            asin: product.asin,
-            title,
-            image
-          }
-        }).catch((err: any) => console.error(`Failed to sync product ${product.asin} to DB:`, err));
+        import('../lib/db').then(({ prisma }) => {
+          prisma.product.upsert({
+            where: { asin: product.asin },
+            update: {
+              title,
+              image
+            },
+            create: {
+              asin: product.asin,
+              title,
+              image
+            }
+          }).catch((err: any) => console.error(`Failed to sync product ${product.asin} to DB:`, err));
+        });
       });
 
       // Add a small delay to avoid hitting rate limits
