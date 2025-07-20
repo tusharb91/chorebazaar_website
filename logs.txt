@@ -1,0 +1,12 @@
+
+> chorebazaar_website@0.1.0 test:amazon
+> dotenv -e .env.local -- tsx src/utils/testAmazonApi.ts
+
+[dotenv@17.0.1] injecting env (0) from .env – [tip] encrypt with dotenvx: https://dotenvx.com
+Amazon SearchItems API response: {
+  SearchResult: {
+    Items: [ [Object], [Object] ],
+    SearchURL: 'https://www.amazon.in/s?k=moisturizer&rh=p_n_availability%3A1318484031&tag=chorebazaar-21&linkCode=osi',
+    TotalResultCount: 306
+  }
+}
