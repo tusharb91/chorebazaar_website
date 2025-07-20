@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from "@/lib/db";
 export async function GET(
   req: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
-  const asin = context.params.id; 
+  const asin = params.id;
   console.log("Requested ASIN:", asin);
 
   if (!asin) {
